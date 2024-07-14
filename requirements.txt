@@ -1,3 +1,4 @@
 flask
 flask-sqlalchemy
 flask-security
+flask-cors
