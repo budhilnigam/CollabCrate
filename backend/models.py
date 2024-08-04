@@ -33,3 +33,5 @@ class Influencer(db.Model):
         self.inf_category = inf_category
         self.inf_niche = inf_niche
         self.inf_reach = inf_reach
+
+class Campaign(db.Model):
