@@ -35,3 +35,13 @@ class Influencer(db.Model):
         self.inf_reach = inf_reach
 
 class Campaign(db.Model):
+    camp_name=String()
+    camp_budget=Integer()
+    camp_date=String()
+    camp_status=String()
+
+    def __init__(self, camp_name, camp_budget, camp_date, camp_status):
+        self.camp_name = camp_name
+        self.camp_budget = camp_budget
+        self.camp_date = camp_date
+        self.camp_status = camp_status
