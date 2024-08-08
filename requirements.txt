@@ -2,3 +2,5 @@ flask
 flask-sqlalchemy
 flask-security
 flask-cors
+celery
+flask-sqlacodegen
