@@ -4,3 +4,4 @@ flask-security
 flask-cors
 celery
 flask-sqlacodegen
+flask-bcrypt
