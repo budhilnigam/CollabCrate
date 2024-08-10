@@ -46,7 +46,7 @@ def index():
 def register():
     username = request.form['username']
     password = request.form['password']
-    role = request.form['role']
+    role = request.args.get('role')
 
     if role == 'sponsor':
         if sponsors.query.filter_by(username=username).first():
@@ -95,25 +95,6 @@ def logout():
     logout_user()
     return {"message":True}
 
-@app.route('/ad_requests', methods=['GET','POST'])
-@login_required
-def ad_requests():
-    if request.method == 'GET':
-        if current_user.get_id().split(':')[0] == 'admin' or current_user.get_id().split(':')[0] == 'sponsor':
-            sponsor_username=request.args.get('sponsor_username')
-            if request.args.get('which')=='all':
-                return jsonify(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).join(sponsors, Campaign.sp_id==sponsors.sp_id).filter(sponsors.username==sponsor_username).all())
-            else:
-                return jsonify(AdRequest.query.filter_by(id=current_user.id, status=request.args.get('which')).all())
-    elif request.method == 'POST':
-        cmpn_id = request.form['cmpn_id']
-        inf_id = request.form['inf_id']
-        message = request.form['message']
-        payment_amt = request.form['payment_amt']
-        ad_request = AdRequest(cmpn_id=cmpn_id, inf_id=inf_id, message=message, payment_amt=payment_amt)
-        db.session.add(ad_request)
-        db.session.commit()
-        return {"message":True}
-
+import ads
 if __name__ == '__main__':
     app.run(debug=True)
