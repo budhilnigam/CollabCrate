@@ -1,6 +1,6 @@
 # coding: utf-8
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_security import UserMixin
 
 db = SQLAlchemy()
 
@@ -15,22 +15,24 @@ class AdRequest(db.Model):
     message = db.Column(db.Text, nullable=False)
     payment_amt = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Text, nullable=False, server_default=db.FetchedValue())
-
+    made_by = db.Column(db.Text, nullable=False)
+    
     cmpn = db.relationship('Campaign', primaryjoin='AdRequest.cmpn_id == Campaign.cmpn_id')
     inf = db.relationship('Influencer', primaryjoin='AdRequest.inf_id == Influencer.inf_id')
 
-    def __init__(self, cmpn_id, inf_id, message, payment_amt, status):
+    def __init__(self, cmpn_id, inf_id, message, payment_amt, status='Pending',made_by='sponsor'):
         self.cmpn_id = cmpn_id
         self.inf_id = inf_id
         self.message = message
         self.payment_amt = payment_amt
         self.status = status
+        self.made_by = made_by
 
     
 
 
 
-class Admin(db.Model):
+class Admin(db.Model, UserMixin):
     __tablename__ = 'admin'
 
     username = db.Column(db.Text, primary_key=True, server_default=db.FetchedValue())
@@ -38,6 +40,15 @@ class Admin(db.Model):
 
     def get_id(self):
         return f"admin:{self.username}"
+    
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def is_authenticated(self):
+        return True
 
 
 
@@ -46,16 +57,18 @@ class Campaign(db.Model):
 
     cmpn_id = db.Column(db.Integer, primary_key=True)
     cmpn_name = db.Column(db.Text, nullable=False)
+    sp_username=db.Column(db.ForeignKey('sponsors.username'), nullable=False)
     cmpn_description = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.Text, nullable=False)
     end_date = db.Column(db.Text, nullable=False)
     budget = db.Column(db.Integer, nullable=False)
     visibility = db.Column(db.Text, nullable=False, server_default=db.FetchedValue())
     goals = db.Column(db.Text, nullable=False)
-
-    def __init__(self, cmpn_name, cmpn_description, start_date, end_date, budget, visibility, goals):
+    flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
+    def __init__(self, cmpn_name, sp_id, cmpn_description, start_date, end_date, budget, visibility, goals):
         self.cmpn_name = cmpn_name
         self.cmpn_description = cmpn_description
+        self.sp_id = sp_id
         self.start_date = start_date
         self.end_date = end_date
         self.budget = budget
@@ -64,7 +77,7 @@ class Campaign(db.Model):
 
 
 
-class Influencer(db.Model):
+class Influencer(db.Model, UserMixin):
     __tablename__ = 'influencers'
 
     inf_id = db.Column(db.Integer, primary_key=True)
@@ -73,7 +86,7 @@ class Influencer(db.Model):
     inf_category = db.Column(db.Text, nullable=False)
     inf_niche = db.Column(db.Text, nullable=False)
     inf_reach = db.Column(db.Integer, nullable=False)
-
+    flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
     def __init__(self, username, password, inf_category, inf_niche, inf_reach):
         self.username = username
         self.password = password
@@ -83,16 +96,24 @@ class Influencer(db.Model):
 
     def get_id(self):
         return f"influencer:{self.username}"
+    def is_active(self):
+        return True
 
-class Sponsor(db.Model):
+    def is_anonymous(self):
+        return False
+
+    def is_authenticated(self):
+        return True
+    
+
+class sponsors(db.Model):
     __tablename__ = 'sponsors'
-
     sp_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.Text, nullable=False)
     sp_industry = db.Column(db.Text, nullable=False)
     sp_budget = db.Column(db.Integer, nullable=False)
     password = db.Column(db.Text, nullable=False)
-
+    flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
     def __init__(self, username, sp_industry, sp_budget, password):
         self.username = username
         self.sp_industry = sp_industry
@@ -101,3 +122,12 @@ class Sponsor(db.Model):
 
     def get_id(self):
         return f"sponsor:{self.username}"
+    
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def is_authenticated(self):
+        return True
