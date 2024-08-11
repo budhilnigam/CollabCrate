@@ -65,7 +65,7 @@ class Campaign(db.Model):
     visibility = db.Column(db.Text, nullable=False, server_default=db.FetchedValue())
     goals = db.Column(db.Text, nullable=False)
     flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
-    def __init__(self, cmpn_name, sp_id, cmpn_description, start_date, end_date, budget, visibility, goals):
+    def __init__(self, cmpn_name, sp_id, cmpn_description, start_date, end_date, budget, goals,visibility='private'):
         self.cmpn_name = cmpn_name
         self.cmpn_description = cmpn_description
         self.sp_id = sp_id
@@ -131,3 +131,27 @@ class sponsors(db.Model):
 
     def is_authenticated(self):
         return True
+
+"""class adrooms(db.Model):
+    __tablename__ = 'adrooms'
+    room_id = db.Column(db.Integer, primary_key=True)
+    cmpn_id = db.Column(db.Integer, nullable=False)
+    inf_id = db.Column(db.Integer, nullable=False)
+    room = db.Column(db.Text, nullable=False)
+    flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
+    def __init__(self, cmpn_id, inf_id, room):
+        self.cmpn_id = cmpn_id
+        self.inf_id = inf_id
+        self.room = room"""
+"""class chats(db.Model):
+    __tablename__ = 'chats'
+    chat_id = db.Column(db.Integer, primary_key=True)
+    cmpn_id = db.Column(db.Integer, nullable=False)
+    inf_id = db.Column(db.Integer, nullable=False)
+    chat = db.Column(db.Text, nullable=False)
+    flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
+    def __init__(self, cmpn_id, inf_id, chat):
+        self.cmpn_id = cmpn_id
+        self.inf_id = inf_id
+        self.chat = chat"""
+
