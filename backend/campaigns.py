@@ -34,18 +34,6 @@ def get_campaigns_all():
     else:
         return jsonify(Campaign.query.filter_by(visibility='public').all())
 
-
-@app.route('/campaigns/flag',methods=['PUT'])
-@login_required
-def flag_campaign():
-    cmpn_id = request.args.get('cmpn_id')
-    flag = request.args.get('flag')
-    campaign = db.session.query(Campaign).filter(Campaign.cmpn_id==cmpn_id).first()
-    campaign.flag = flag
-    db.session.commit()
-    return {"message":"Campaign "+cmpn_id+"is "+("" if flag else "un")+"flagged"}
-
-
 @app.route('/campaigns/delete',methods=['DELETE'])
 @login_required
 def delete_campaign():
