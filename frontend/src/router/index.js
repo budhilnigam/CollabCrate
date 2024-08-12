@@ -1,30 +1,54 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import {createApp} from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import AdminDashboard from '../views/AdminDashboard.vue'
+import SponsorDashboard from '../views/SponsorDashboard.vue'
+import InfluencerDashboard from '../views/InfluencerDashboard.vue'
+import SponsorLogin from '../components/SponsorLogin.vue'
+import InfluencerLogin from '../components/InfluencerLogin.vue'
+import SponsorRegister from '../components/SponsorRegister.vue'
+import InfluencerRegister from '../components/InfluencerRegister.vue'
 
-Vue.use(VueRouter);
 
 const routes = [
-  {
-    path: "/",
-    name: "home",
-    component: HomeView,
-  },
-  {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
-  },
-];
+  { path: '/', redirect: '/sponsor/login' },
+  { path: '/sponsor/login', component: SponsorLogin },
+  { path: '/influencer/login', component: InfluencerLogin },
+  { path: '/sponsor/register', component: SponsorRegister },
+  { path: '/influencer/register', component: InfluencerRegister },
+  { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, role: 'admin' } },
+  { path: '/sponsor', component: SponsorDashboard, meta: { requiresAuth: true, role: 'sponsor' } },
+  { path: '/influencer', component: InfluencerDashboard, meta: { requiresAuth: true, role: 'influencer' } }
+]
 
-const router = new VueRouter({
-  mode: "history",
-  base: process.env.BASE_URL,
-  routes,
-});
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
 
-export default router;
+// Navigation Guard
+router.beforeEach((to, from, next) => {
+  const loggedIn = localStorage.getItem('user')
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!loggedIn) {
+      next('/login')
+    } else {
+      let userRole;
+      if(JSON.parse(loggedIn).sp_id){
+        userRole = 'sponsor'
+      } else if(JSON.parse(loggedIn).inf_id){
+        userRole = 'influencer'
+      } else {
+        userRole = 'admin'
+      }
+      if (to.meta.role !== userRole) {
+        next('/login')
+      } else {
+        next()
+      }
+    }
+  } else {
+    next()
+  }
+})
+
+export default router

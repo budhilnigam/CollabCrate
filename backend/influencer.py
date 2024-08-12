@@ -1,1 +1,1 @@
-from __main__ import app,db,login_manager
+from server import app,db,login_manager

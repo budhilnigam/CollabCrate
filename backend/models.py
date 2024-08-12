@@ -65,10 +65,10 @@ class Campaign(db.Model):
     visibility = db.Column(db.Text, nullable=False, server_default=db.FetchedValue())
     goals = db.Column(db.Text, nullable=False)
     flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
-    def __init__(self, cmpn_name, sp_id, cmpn_description, start_date, end_date, budget, goals,visibility='private'):
+    def __init__(self, cmpn_name, sp_username, cmpn_description, start_date, end_date, budget, goals,visibility='private'):
         self.cmpn_name = cmpn_name
         self.cmpn_description = cmpn_description
-        self.sp_id = sp_id
+        self.sp_username = sp_username
         self.start_date = start_date
         self.end_date = end_date
         self.budget = budget
@@ -86,6 +86,7 @@ class Influencer(db.Model, UserMixin):
     inf_category = db.Column(db.Text, nullable=False)
     inf_niche = db.Column(db.Text, nullable=False)
     inf_reach = db.Column(db.Integer, nullable=False)
+    approved = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
     flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
     def __init__(self, username, password, inf_category, inf_niche, inf_reach):
         self.username = username
@@ -113,6 +114,7 @@ class sponsors(db.Model):
     sp_industry = db.Column(db.Text, nullable=False)
     sp_budget = db.Column(db.Integer, nullable=False)
     password = db.Column(db.Text, nullable=False)
+    approved = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
     flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
     def __init__(self, username, sp_industry, sp_budget, password):
         self.username = username
