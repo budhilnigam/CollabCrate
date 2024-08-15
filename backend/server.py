@@ -195,5 +195,8 @@ celery.conf.beat_schedule = {
     },
 }
 
+@celery.task
+def generate_report():
+    
 if __name__ == '__main__':
     app.run(debug=True)
