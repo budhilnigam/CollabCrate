@@ -1,3 +1,4 @@
+# ads.py
 from __main__ import app,db,login_manager,login_required,current_user,AdRequest,Campaign,sponsors
 from flask import jsonify,request
 

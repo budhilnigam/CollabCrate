@@ -1,3 +1,4 @@
+# campaigns.py
 from __main__ import app,db,login_required,current_user,Campaign,sponsors,dbqueryconverter,singlequeryconverter,queryconverter
 from flask import jsonify,request
 

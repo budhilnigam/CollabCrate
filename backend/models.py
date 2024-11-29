@@ -1,10 +1,8 @@
-# coding: utf-8
+# models.py
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import UserMixin
 
 db = SQLAlchemy()
-
-
 
 class AdRequest(db.Model):
     __tablename__ = 'ad_requests'
@@ -27,9 +25,6 @@ class AdRequest(db.Model):
         self.payment_amt = payment_amt
         self.status = status
         self.made_by = made_by
-
-    
-
 
 
 class Admin(db.Model, UserMixin):
