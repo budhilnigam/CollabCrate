@@ -7,6 +7,9 @@
       <button type="submit">Login</button>
     </form>
   </div>
+  <div>
+    <p> New user? <router-link to="/sponsor/register">Register here</router-link></p>
+  </div>
 </template>
 
 <script>
