@@ -9,7 +9,8 @@
           <button type="submit">Create Campaign</button>
         </form>
       </div>
-  
+      <CampaignForm @create-campaign="createCampaign">
+      </CampaignForm>
       <div v-if="campaigns.length">
         <h3>Your Campaigns</h3>
         <div v-for="campaign in campaigns" :key="campaign.cmpn_id" class="campaign">
@@ -37,7 +38,7 @@
   
   <script>
   import axios from 'axios';
-  
+  import SponsorCampaignForm from '@/components/SponsorCampaignForm.vue';
   export default {
     data() {
       return {
@@ -94,6 +95,9 @@
       longDate(date) {
         return new Date(date).toLocaleString();
       }
+    },
+    components: {
+      'CampaignForm': SponsorCampaignForm,
     },
   };
 </script>
