@@ -78,14 +78,16 @@ class Influencer(db.Model, UserMixin):
     inf_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.Text, nullable=False)
     password = db.Column(db.Text, nullable=False)
+    email = db.Column(db.Text, nullable=False)
     inf_category = db.Column(db.Text, nullable=False)
     inf_niche = db.Column(db.Text, nullable=False)
     inf_reach = db.Column(db.Integer, nullable=False)
     approved = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
     flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
-    def __init__(self, username, password, inf_category, inf_niche, inf_reach):
+    def __init__(self, username, password, email, inf_category, inf_niche, inf_reach):
         self.username = username
         self.password = password
+        self.email = email
         self.inf_category = inf_category
         self.inf_niche = inf_niche
         self.inf_reach = inf_reach
@@ -109,10 +111,12 @@ class sponsors(db.Model):
     sp_industry = db.Column(db.Text, nullable=False)
     sp_budget = db.Column(db.Integer, nullable=False)
     password = db.Column(db.Text, nullable=False)
+    email = db.Column(db.Text, nullable=False)
     approved = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
     flagged = db.Column(db.Boolean, nullable=False, server_default=db.FetchedValue())
-    def __init__(self, username, sp_industry, sp_budget, password):
+    def __init__(self, username, email, sp_industry, sp_budget, password):
         self.username = username
+        self.email = email
         self.sp_industry = sp_industry
         self.sp_budget = sp_budget
         self.password = password
