@@ -1,5 +1,5 @@
 # ads.py
-from __main__ import app,db,login_manager,login_required,current_user,AdRequest,Campaign,sponsors
+from __main__ import app,db,login_manager,login_required,current_user,AdRequest,Campaign,sponsors,dbqueryconverter,singlequeryconverter,queryconverter
 from flask import jsonify,request
 
 @app.route('/ad_requests', methods=['GET','POST'])
@@ -8,20 +8,20 @@ def ad_requests():
     if request.method == 'GET':
         if current_user.get_id().split(':')[0] == 'admin':
             sponsor_username=request.args.get('sponsor_username')
-            if request.args.get('which')=='all':
-                return jsonify(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(Campaign.sp_username==sponsor_username).all())
+            if request.args.get('status')=='all':
+                return {"ads":dbqueryconverter(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(Campaign.sp_username==sponsor_username).all())}
             else:
-                return jsonify(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(Campaign.sp_username==sponsor_username,AdRequest.status==request.args.get('which')).all())
+                return {"ads":dbqueryconverter(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(Campaign.sp_username==sponsor_username,AdRequest.status==request.args.get('status')).all())}
         elif current_user.get_id().split(':')[0] == 'sponsor':
-            if request.args.get('which')=='all':
-                return jsonify(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(Campaign.sp_username==current_user.username).all())
+            if request.args.get('status')=='all':
+                return {"ads":dbqueryconverter(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(Campaign.sp_username==current_user.username).all())}
             else:
-                return jsonify(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(Campaign.sp_username==current_user.username,AdRequest.status==request.args.get('which')).all())
+                return {"ads":dbqueryconverter(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(Campaign.sp_username==current_user.username,AdRequest.status==request.args.get('status')).all())}
         elif current_user.get_id().split(':')[0] == 'influencer':
-            if request.args.get('which')=='all':
-                return jsonify(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(AdRequest.inf_id==current_user.inf_id).all())
+            if request.args.get('status')=='all':
+                return {"ads":dbqueryconverter(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(AdRequest.inf_id==current_user.inf_id).all())}
             else:
-                return jsonify(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(AdRequest.inf_id==current_user.inf_id,AdRequest.status==request.args.get('which')).all())
+                return {"ads":dbqueryconverter(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(AdRequest.inf_id==current_user.inf_id,AdRequest.status==request.args.get('status')).all())}
     elif request.method == 'POST':
         cmpn_id = request.args.get('cmpn_id')
         inf_id = request.args.get('inf_id')
