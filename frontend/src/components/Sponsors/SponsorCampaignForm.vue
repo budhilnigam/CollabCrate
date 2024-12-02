@@ -1,15 +1,12 @@
 <template>
     <div>
-      <!-- Button to open the form modal -->
       <button
         id="create-campaign"
         class="btn btn-primary"
         @click="openModal"
       >
-        Create Campaign 2
+        Create Campaign
       </button>
-  
-      <!-- Modal for campaign creation -->
       <div
         class="modal fade"
         id="campaignModal"
@@ -66,15 +63,23 @@
                 </div>
                 <div class="form-group">
                   <label for="visibility">Visibility</label>
-                  <select
-                    class="form-control"
-                    id="visibility"
-                    v-model="formData.visibility"
-                    required
-                  >
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                  </select>
+                  <div class="form-check form-switch mt-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="visibilitySwitch"
+                      role="switch"
+                      v-model="isPublic"
+                      @change="toggleVisibility"
+                    />
+                    <label
+                      class="form-check-label"
+                      :class="['badge', isPublic ? 'bg-success' : 'bg-danger']"
+                      for="visibilitySwitch"
+                    >
+                      {{ isPublic? 'Public' : 'Private' }}
+                    </label>
+                  </div>
                 </div>
                 <div class="form-group">
                   <label for="start_date">Start Date</label>
@@ -105,6 +110,7 @@
                     required
                   ></textarea>
                 </div>
+                <p class="text-danger text-center">{{ message }}</p>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" @click="closeModal">
                     Cancel
@@ -122,10 +128,11 @@
   </template>
   
   <script>
-  
+  import axios from 'axios';
   export default {
     data() {
       return {
+        isPublic: false,
         formData: {
           cmpn_name: '',
           cmpn_description: '',
@@ -153,26 +160,40 @@
           cmpn_name: '',
           cmpn_description: '',
           budget: '',
-          visibility: 'public',
+          visibility: 'private',
           start_date: '',
           end_date: '',
           goals: '',
         };
       },
+      toggleVisibility() {
+        this.formData.visibility = this.isPublic ? 'public' : 'private';
+      },
       async createCampaign() {
         try {
-          const response = await fetch('/server/campaigns/create', {
-            method: 'POST',
+          const response = await axios.post('/server/campaigns/create',
+          {
+            cmpn_name: this.formData.cmpn_name,
+            cmpn_description: this.formData.cmpn_description,
+            budget: this.formData.budget,
+            visibility: this.formData.visibility,
+            start_date: this.formData.start_date,
+            end_date: this.formData.end_date,
+            goals: this.formData.goals,
+          },
+          {
             headers: {
-              'Content-Type': 'application/json',
+              'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: JSON.stringify(this.formData),
+            withCredentials: true,
           });
-  
-          const result = await response.json();
-          if (result.success) {
+          console.log(response);
+          const result = await response.data;
+          if (response.status < 300) {
             this.message = 'Campaign created successfully!';
-            this.closeModal();
+            setTimeout(() => {
+              this.closeModal();
+            }, 1000);
           } else {
             this.message = result.message || 'An error occurred.';
           }

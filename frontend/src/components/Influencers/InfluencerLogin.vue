@@ -1,14 +1,11 @@
 <template>
   <div>
-    <h2>Sponsor Login</h2>
+    <h2>Influencer Login</h2>
     <form @submit.prevent="login">
       <input v-model="username" placeholder="Username" required />
       <input v-model="password" type="password" placeholder="Password" required />
       <button type="submit">Login</button>
     </form>
-  </div>
-  <div>
-    <p> New user? <router-link to="/sponsor/register">Register here</router-link></p>
   </div>
 </template>
 
@@ -28,14 +25,15 @@ export default {
         await axios.post('/server/login', {
           username: this.username,
           password: this.password,
-          role:'sponsor',
-        }, { headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    },withCredentials: true })
+          role:'influencer',
+          }, {
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          withCredentials: true 
+        })
         const response = await axios.get('/server/get_user', { withCredentials: true })
         const user = response.data
         localStorage.setItem('user', JSON.stringify(user))
-        this.$router.push('/sponsor')
+        this.$router.push('/influencer')
       } catch (error) {
         alert('Login failed: ' + error.response.data.message)
       }

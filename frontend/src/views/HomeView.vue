@@ -42,12 +42,11 @@
 
 <script>
 export default {
-  name: "HomePage",
+  name: "HomeView",
 };
 </script>
 
 <style>
-/* Add any additional custom styles here */
 body {
   font-family: Arial, sans-serif;
 }

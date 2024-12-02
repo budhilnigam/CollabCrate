@@ -19,7 +19,6 @@
 
 <script>
 import axios from 'axios'
-
 export default {
   data () {
     return {
@@ -32,15 +31,17 @@ export default {
   methods: {
     async fetchAdRequests () {
       try {
-        const response = await axios.get('http://localhost:5000/influencer/ad_requests', { withCredentials: true })
-        this.adRequests = response.data.ad_requests
+        const response = await axios.get('/server/ad_requests',{status: 'pending'}, {
+          header: {'Content-Type': 'application/json'},
+          withCredentials: true })
+        this.adRequests = response.data.ads
       } catch (error) {
         alert('Failed to fetch ad requests: ' + error.response.data.message)
       }
     },
     async respondToRequest (requestId, status) {
       try {
-        await axios.post(`http://localhost:5000/influencer/ad_request/${requestId}/respond`, { status }, { withCredentials: true })
+        await axios.post(`/server/influencer/ad_request/${requestId}/respond`, { status }, { withCredentials: true })
         alert(`Ad request ${status}.`)
         this.fetchAdRequests()
       } catch (error) {

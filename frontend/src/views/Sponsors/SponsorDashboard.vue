@@ -1,25 +1,21 @@
 <template>
-    <div>
-      <h2>Sponsor Dashboard</h2>
+    <div class="px-2">
+      <h1>Sponsor Dashboard</h1>
       <div>
-        <h3>Create New Campaign</h3>
-        <form @submit.prevent="createCampaign">
-          <input v-model="newCampaign.description" placeholder="Campaign Description" required />
-          <input v-model="newCampaign.budget" type="number" placeholder="Budget" required />
-          <button type="submit">Create Campaign</button>
-        </form>
       </div>
-      <CampaignForm @create-campaign="createCampaign">
-      </CampaignForm>
       <div v-if="campaigns.length">
-        <h3>Your Campaigns</h3>
+        <span class="d-flex justify-content-between">
+          <h3>Your Campaigns</h3>
+          <CampaignForm @create-campaign="createCampaign">
+          </CampaignForm>
+        </span>
         <div v-for="campaign in campaigns" :key="campaign.cmpn_id" class="campaign">
           <h1>{{campaign.cmpn_name}} </h1>
           <h4>{{ campaign.cmpn_description }}</h4>
           <h4><i style="font-weight:bold">Goals: </i>{{ campaign.goals }}</h4>
           <h4><b style="font-weight:bold">Budget: </b>{{ campaign.budget }}</h4>
-          <h4> {{ longDate(campaign.start_date) }}</h4>
-          <h4> {{ campaign.end_date }}</h4>
+          <h4> <b>Start Date:</b> {{ Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric',month: 'long', year: 'numeric' }).format(new Date(campaign.start_date)) }}</h4>
+          <h4> <b>End Date:</b> {{ Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric',month: 'long', year: 'numeric' }).format(new Date(campaign.end_date)) }}</h4>
           <ul>
             <li v-for="request in campaign.requests" :key="request.id">
               {{ request.influencer_email }} - {{ request.status }}
@@ -27,7 +23,7 @@
             </li>
           </ul>
           <input v-model="selectedInfluencer" placeholder="Influencer Email" />
-          <button @click="sendAdRequest(campaign.id)">Send Ad Request</button>
+          <button @click="sendAdRequest(campaign.cmpn_id)">Send Ad Request</button>
         </div>
       </div>
       <div v-else>
@@ -38,14 +34,10 @@
   
   <script>
   import axios from 'axios';
-  import SponsorCampaignForm from '@/components/SponsorCampaignForm.vue';
+  import SponsorCampaignForm from '@/components/Sponsors/SponsorCampaignForm.vue';
   export default {
     data() {
       return {
-        newCampaign: {
-          description: '',
-          budget: '',
-        },
         campaigns: [],
         selectedInfluencer: '',
       };
@@ -56,7 +48,7 @@
     methods: {
       async createCampaign() {
         try {
-          const response = await axios.post('http://localhost:5000/sponsor/campaign', this.newCampaign, { withCredentials: true });
+          const response = await axios.post('/server/sponsor/campaign', this.newCampaign, { withCredentials: true });
           this.campaigns.push(response.data.campaign);
           this.newCampaign.description = '';
           this.newCampaign.budget = '';
@@ -66,7 +58,7 @@
       },
       async fetchCampaigns() {
         try {
-          const response = await axios.get('http://localhost:5000/campaigns/me', { withCredentials: true });
+          const response = await axios.get('/server/campaigns/me', { withCredentials: true });
           console.log(response.data)
           this.campaigns = response.data;
           
@@ -76,7 +68,7 @@
       },
       async sendAdRequest(campaignId) {
         try {
-          await axios.post(`http://localhost:5000/sponsor/campaign/${campaignId}/ad_request`, { influencer_email: this.selectedInfluencer }, { withCredentials: true });
+          await axios.post(`/server/sponsor/campaign/${campaignId}/ad_request`, { influencer_email: this.selectedInfluencer }, { withCredentials: true });
           alert('Ad request sent.');
           this.fetchCampaigns();
         } catch (error) {
