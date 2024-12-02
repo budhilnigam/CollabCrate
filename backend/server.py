@@ -103,7 +103,11 @@ def dbqueryconverter(query):
     for r in query:
         result.append({})
         for j in r._mapping:
-            result[len(result)-1][j]=r._mapping[j]
+            if j!='_sa_instance_state' and j!='password':
+                if r._mapping[j] is not None:
+                    result[len(result)-1][j]=r._mapping[j]
+                else:
+                    result[len(result)-1][j]=""
     return result
 
 @app.route('/api', methods=['GET'])
@@ -129,6 +133,7 @@ def register():
         sponsor = sponsors(username=username,email=email, password=bcrypt.generate_password_hash(password),sp_industry=sp_industry,sp_budget=sp_budget)
         db.session.add(sponsor)
         db.session.commit()
+        login_user(sponsor)
         return {"message":True}
     elif role == 'influencer':
         if Influencer.query.filter_by(username=username).first():
@@ -139,6 +144,7 @@ def register():
         influencer = Influencer(username=username,email=email, password=bcrypt.generate_password_hash(password),inf_category=inf_category,inf_niche=inf_niche,inf_reach=inf_reach)
         db.session.add(influencer)
         db.session.commit()
+        login_user(influencer)
         return {"message":True}
 
 @app.route('/login', methods=['POST'])
@@ -174,6 +180,7 @@ def logout():
 def get_user():
     print(singlequeryconverter(current_user))
     return jsonify(singlequeryconverter(current_user))
+
 import ads,campaigns,admin
 
 @celery.task
