@@ -1,23 +1,25 @@
 import {createApp} from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import AdminDashboard from '../views/AdminDashboard.vue'
-import SponsorDashboard from '../views/SponsorDashboard.vue'
-import InfluencerDashboard from '../views/InfluencerDashboard.vue'
-import SponsorLogin from '../components/SponsorLogin.vue'
-import InfluencerLogin from '../components/InfluencerLogin.vue'
-import SponsorRegister from '../components/SponsorRegister.vue'
-import InfluencerRegister from '../components/InfluencerRegister.vue'
-
+import SponsorDashboard from '../views/Sponsors/SponsorDashboard.vue'
+import InfluencerDashboard from '../views/Influencers/InfluencerDashboard.vue'
+import SponsorLogin from '../components/Sponsors/SponsorLogin.vue'
+import InfluencerLogin from '../components/Influencers/InfluencerLogin.vue'
+import SponsorRegister from '../components/Sponsors/SponsorRegister.vue'
+import InfluencerRegister from '../components/Influencers/InfluencerRegister.vue'
+import HomeView from '@/views/HomeView.vue'
+import Campaigns from '@/views/Campaigns.vue'
 
 const routes = [
-  { path: '/', redirect: '/sponsor/login' },
+  { path: '/', component: HomeView },
   { path: '/sponsor/login', component: SponsorLogin },
   { path: '/influencer/login', component: InfluencerLogin },
   { path: '/sponsor/register', component: SponsorRegister },
   { path: '/influencer/register', component: InfluencerRegister },
-  { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, role: 'admin' } },
-  { path: '/sponsor', component: SponsorDashboard, meta: { requiresAuth: true, role: 'sponsor' } },
-  { path: '/influencer', component: InfluencerDashboard, meta: { requiresAuth: true, role: 'influencer' } }
+  { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, role: ['admin'] } },
+  { path: '/sponsor', component: SponsorDashboard, meta: { requiresAuth: true, role: ['sponsor'] } },
+  { path: '/influencer', component: InfluencerDashboard, meta: { requiresAuth: true, role: ['influencer'] } },
+  { path: '/campaigns', component: Campaigns, meta: { requiresAuth: true , role: ['influencer', 'sponsor']} }
 ]
 
 const router = createRouter({
@@ -40,8 +42,9 @@ router.beforeEach((to, from, next) => {
       } else {
         userRole = 'admin'
       }
-      if (to.meta.role !== userRole) {
-        next('/login')
+      localStorage.setItem('userRole', userRole);
+      if (!to.meta.role.includes(userRole)) {
+        next(to.meta.role[0]+'/login')
       } else {
         next()
       }
