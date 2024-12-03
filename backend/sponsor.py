@@ -133,19 +133,11 @@ def search_influencers():
     return jsonify(queryconverter(influencers))
 
 @app.route('/api/campaigns', methods=['GET'])
+@login_required
 def get_campaigns():
-    sponsor_username = request.args.get('sponsor')
+    sponsor_username = current_user.username
     campaigns = Campaign.query.filter_by(sp_username=sponsor_username).all()
-    results = [
-        {
-            "cmpn_id": cmpn.cmpn_id,
-            "cmpn_name": cmpn.cmpn_name,
-            "budget": cmpn.budget,
-            "goals": cmpn.goals,
-        }
-        for cmpn in campaigns
-    ]
-    return jsonify(results)
+    return jsonify(queryconverter(campaigns))
 
 @app.route('/api/ad-requests', methods=['POST'])
 def create_ad_request():

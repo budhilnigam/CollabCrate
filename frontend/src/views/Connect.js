@@ -131,8 +131,9 @@ import axios from "axios";
       },
       async fetchCampaigns() {
         try {
-          const response = await axios.get("/api/campaigns");
+          const response = await axios.get("/server/api/campaigns");
           this.campaigns = response.data;
+          console.log(response.data)
         } catch (error) {
           console.error("Error fetching campaigns:", error);
         }
@@ -144,7 +145,7 @@ import axios from "axios";
       },
       async requestAd() {
         try {
-          await axios.post("/api/ad-requests", {
+          await axios.post("/server/api/ad-requests", {
             cmpn_id: this.selectedCampaign,
             inf_id: this.selectedInfluencer,
             message: this.adMessage,
