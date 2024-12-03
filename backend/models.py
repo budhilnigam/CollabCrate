@@ -18,7 +18,7 @@ class AdRequest(db.Model):
     cmpn = db.relationship('Campaign', primaryjoin='AdRequest.cmpn_id == Campaign.cmpn_id')
     inf = db.relationship('Influencer', primaryjoin='AdRequest.inf_id == Influencer.inf_id')
 
-    def __init__(self, cmpn_id, inf_id, message, payment_amt, status='Pending',made_by='sponsor'):
+    def __init__(self, cmpn_id, inf_id, message, payment_amt, status='pending',made_by='sponsor'):
         self.cmpn_id = cmpn_id
         self.inf_id = inf_id
         self.message = message

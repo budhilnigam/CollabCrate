@@ -19,9 +19,9 @@ def ad_requests():
                 return {"ads":dbqueryconverter(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(Campaign.sp_username==current_user.username,AdRequest.status==request.args.get('status')).all())}
         elif current_user.get_id().split(':')[0] == 'influencer':
             if request.args.get('status')=='all':
-                return {"ads":dbqueryconverter(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(AdRequest.inf_id==current_user.inf_id).all())}
+                return {"ads":dbqueryconverter(db.session.query(AdRequest.status,AdRequest.ad_id,AdRequest.message,AdRequest.payment_amt,AdRequest.made_by,Campaign.cmpn_name,Campaign.cmpn_id,Campaign.sp_username,Campaign.cmpn_description,Campaign.budget,Campaign.visibility,Campaign.start_date,Campaign.end_date,Campaign.goals).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(AdRequest.inf_id==current_user.inf_id).all())}
             else:
-                return {"ads":dbqueryconverter(db.session.query(AdRequest).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(AdRequest.inf_id==current_user.inf_id,AdRequest.status==request.args.get('status')).all())}
+                return {"ads":dbqueryconverter(db.session.query(AdRequest.status,AdRequest.ad_id,AdRequest.message,AdRequest.payment_amt,AdRequest.made_by,Campaign.cmpn_name,Campaign.cmpn_id,Campaign.sp_username,Campaign.cmpn_description,Campaign.budget,Campaign.visibility,Campaign.start_date,Campaign.end_date,Campaign.goals).join(Campaign, AdRequest.cmpn_id==Campaign.cmpn_id).filter(AdRequest.inf_id==current_user.inf_id,AdRequest.status==request.args.get('status')).all())}
     elif request.method == 'POST':
         cmpn_id = request.args.get('cmpn_id')
         inf_id = request.args.get('inf_id')
