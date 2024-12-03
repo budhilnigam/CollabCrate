@@ -4,10 +4,11 @@
     <div v-if="adRequests.length">
       <h3>Your Ad Requests</h3>
       <ul>
-        <li v-for="request in adRequests" :key="request.id">
-          Campaign: {{ request.campaign_description }} - Status: {{ request.status }}
-          <button v-if="request.status === 'pending'" @click="respondToRequest(request.id, 'accepted')">Accept</button>
-          <button v-if="request.status === 'pending'" @click="respondToRequest(request.id, 'rejected')">Reject</button>
+        <li v-for="request in adRequests" :key="request.ad_id">
+          Campaign: {{ request.cmpn_description }} - Status: {{ request.status }}
+          <button v-if="request.status === 'Accepted'" @click="respondToRequest(request.id, 'completed')">Complete</button>
+          <button v-if="request.status === 'Pending'" @click="respondToRequest(request.id, 'accepted')">Accept</button>
+          <button v-if="request.status === 'Pending'" @click="respondToRequest(request.id, 'rejected')">Reject</button>
         </li>
       </ul>
     </div>
@@ -31,10 +32,11 @@ export default {
   methods: {
     async fetchAdRequests () {
       try {
-        const response = await axios.get('/server/ad_requests',{status: 'pending'}, {
-          header: {'Content-Type': 'application/json'},
+        const response = await axios.get('/server/ad_requests?status=all',{
+          headers: {'Content-Type': 'application/json'},
           withCredentials: true })
         this.adRequests = response.data.ads
+        console.log(response)
       } catch (error) {
         alert('Failed to fetch ad requests: ' + error.response.data.message)
       }

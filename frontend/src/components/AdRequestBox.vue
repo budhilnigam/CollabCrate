@@ -51,15 +51,12 @@ import axios from 'axios';
 
 export default {
     props: {
-        cmpnId: {
-            type: Number,
-            required: true,
-        }
+        cmpnId: Number,
     },
     data() {
         return {
             adRequestData: {
-                cmpn_id: this.cmpnId,
+                cmpn_id: "",
                 inf_id: localStorage.getItem("userRole") === "influencer" ? JSON.parse(localStorage.getItem("user")).inf_id : null,
                 message: "",
                 payment_amt: "",
@@ -68,7 +65,7 @@ export default {
     },
     methods: {
         openAdRequestModal() {
-            this.adRequestData.cmpn_id = cmpnId;
+            this.adRequestData.cmpn_id = this.cmpnId;
             this.adRequestData.message = "";
             this.adRequestData.payment_amt = "";
             const modal = new bootstrap.Modal(document.getElementById("adRequestModal"));
@@ -77,10 +74,16 @@ export default {
         async submitAdRequest() {
             try {
                 const response = await axios.post(
-                `/server/ad_request?cmpn_id=${this.adRequestData.cmpn_id}&inf_id=${this.getInfluencerId()}`,
+                `/server/ad_requests?cmpn_id=${this.adRequestData.cmpn_id}&inf_id=${this.adRequestData.inf_id}`,
                 {
                     message: this.adRequestData.message,
                     payment_amt: this.adRequestData.payment_amt,
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    withCredentials: true,
                 }
                 );
 
