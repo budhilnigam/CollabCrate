@@ -1,30 +1,39 @@
 <template>
-    <div class="px-2">
+    <div class="px-2 m-2">
       <h1>Sponsor Dashboard</h1>
       <div>
       </div>
       <div v-if="campaigns.length">
         <span class="d-flex justify-content-between">
           <h3>Your Campaigns</h3>
-          <CampaignForm @create-campaign="createCampaign">
+          <CampaignForm>
           </CampaignForm>
         </span>
-        <div v-for="campaign in campaigns" :key="campaign.cmpn_id" class="campaign">
-          <h1>{{campaign.cmpn_name}} </h1>
-          <h4>{{ campaign.cmpn_description }}</h4>
-          <h4><i style="font-weight:bold">Goals: </i>{{ campaign.goals }}</h4>
-          <h4><b style="font-weight:bold">Budget: </b>{{ campaign.budget }}</h4>
-          <h4> <b>Start Date:</b> {{ Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric',month: 'long', year: 'numeric' }).format(new Date(campaign.start_date)) }}</h4>
-          <h4> <b>End Date:</b> {{ Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric',month: 'long', year: 'numeric' }).format(new Date(campaign.end_date)) }}</h4>
-          <ul>
-            <li v-for="request in campaign.requests" :key="request.id">
-              {{ request.influencer_email }} - {{ request.status }}
-              <button v-if="request.status === 'pending'" @click="cancelRequest(request.id)">Cancel Request</button>
-            </li>
-          </ul>
-          <input v-model="selectedInfluencer" placeholder="Influencer Email" />
-          <button @click="sendAdRequest(campaign.cmpn_id)">Send Ad Request</button>
+        <div class="row mt-3">
+        <div
+          v-for="campaign in campaigns"
+          :key="campaign.cmpn_id"
+          class="col-md-6 col-lg-4 mb-4"
+        >
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">{{ campaign.cmpn_name }}</h5>
+              <p class="card-text">{{ campaign.cmpn_description }}</p>
+              <ul class="list-unstyled">
+                <li><strong>Start Date:</strong> {{ Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric',month: 'long', year: 'numeric' }).format(new Date(campaign.start_date)) }}</li>
+                <li><strong>End Date:</strong> {{ Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric',month: 'long', year: 'numeric' }).format(new Date(campaign.end_date)) }}</li>
+                <li><strong>Budget:</strong> ${{ campaign.budget }}</li>
+                <li><strong>Goals:</strong> {{ campaign.goals }}</li>
+                <li><strong>Status:</strong><p :class="['d-inline px-1 ms-1 rounded text-white',campaign.visibility === 'public' ? 'bg-success' : 'bg-warning']">{{ campaign.visibility[0].toUpperCase()+campaign.visibility.slice(1).toLowerCase() }}</p></li>
+              </ul>
+              <div class="mt-3">
+                <EditCampaignForm :campaign="campaign"></EditCampaignForm>
+                <button class="btn btn-danger" @click="deleteCampaign(campaign.cmpn_id)">Delete</button>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
       </div>
       <div v-else>
         <p>No campaigns found.</p>
@@ -35,11 +44,11 @@
   <script>
   import axios from 'axios';
   import SponsorCampaignForm from '@/components/Sponsors/SponsorCampaignForm.vue';
+  import EditCampaignForm from '@/components/Sponsors/EditCampaignForm.vue';
   export default {
     data() {
       return {
         campaigns: [],
-        selectedInfluencer: '',
       };
     },
     async created() {
@@ -66,30 +75,10 @@
           alert('Failed to fetch campaigns: ' + error.response.data.message);
         }
       },
-      async sendAdRequest(campaignId) {
-        try {
-          await axios.post(`/server/sponsor/campaign/${campaignId}/ad_request`, { influencer_email: this.selectedInfluencer }, { withCredentials: true });
-          alert('Ad request sent.');
-          this.fetchCampaigns();
-        } catch (error) {
-          alert('Failed to send ad request: ' + error.response.data.message);
-        }
-      },
-      async cancelRequest(requestId) {
-        try {
-          await axios.post(`http://localhost:5000/sponsor/campaign/ad_request/${requestId}/cancel`, {}, { withCredentials: true });
-          alert('Ad request canceled.');
-          this.fetchCampaigns();
-        } catch (error) {
-          alert('Failed to cancel ad request: ' + error.response.data.message);
-        }
-      },
-      longDate(date) {
-        return new Date(date).toLocaleString();
-      }
     },
     components: {
       'CampaignForm': SponsorCampaignForm,
+      'EditCampaignForm': EditCampaignForm,
     },
   };
 </script>
