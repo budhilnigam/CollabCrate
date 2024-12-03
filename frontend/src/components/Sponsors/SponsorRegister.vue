@@ -47,9 +47,10 @@
           required
         />
       </div>
+      <p v-if="message" class="danger" id="warning-message">{{ message }}</p>
       <button type="submit">Register</button>
     </form>
-    <p v-if="message" class="warning" id="warning-message">{{ message }}</p>
+    <p class="text-center pt-2">Already have an account? <RouterLink to="/sponsor/login">Sign In</RouterLink></p>
   </div>
 </template>
 
@@ -139,10 +140,5 @@ button {
 
 button:hover {
   background-color: #0056b3;
-}
-
-p {
-  text-align: center;
-  color: #ff0000;
 }
 </style>

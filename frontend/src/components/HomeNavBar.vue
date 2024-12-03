@@ -5,7 +5,7 @@ import { RouterLink } from "vue-router"
 <div id="home-navbar">
     <nav class="navbar navbar-dark navbar-expand-lg bg-primary">
     <div class="container-fluid" style="max-width: 100vw;">
-    <RouterLink class="navbar-brand" to="/">Logo Here</RouterLink>
+    <RouterLink class="navbar-brand" to="/"><h1 class="h3 ps-3">IESCP</h1></RouterLink>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" >
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -26,9 +26,3 @@ import { RouterLink } from "vue-router"
     </nav>
     </div>
 </template>
-
-export default {
-    components: {
-        RouterLink
-    }
-}
