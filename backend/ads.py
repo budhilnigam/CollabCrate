@@ -37,7 +37,10 @@ def ad_requests():
 def ad_request_action():
     ad_id = request.args.get('ad_id')
     status = request.args.get('status')
-    ad_request = db.session.query(AdRequest).filter(AdRequest.ad_id==ad_id).first()
+    message = request.args.get('message')
+    ad_request = AdRequest.query.filter(AdRequest.ad_id==ad_id).first()
     ad_request.status = status
+    ad_request.message = message
+    ad_request.made_by = current_user.get_id().split(':')[0]
     db.session.commit()
     return {"message":"Ad status changed to "+status}

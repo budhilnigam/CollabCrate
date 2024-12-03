@@ -1,67 +1,113 @@
 <template>
-  <div>
-    <h2>Influencer Dashboard</h2>
-    <div v-if="adRequests.length">
-      <h3>Your Ad Requests</h3>
-      <ul>
-        <li v-for="request in adRequests" :key="request.ad_id">
-          Campaign: {{ request.cmpn_description }} - Status: {{ request.status }}
-          <button v-if="request.status === 'Accepted'" @click="respondToRequest(request.id, 'completed')">Complete</button>
-          <button v-if="request.status === 'Pending'" @click="respondToRequest(request.id, 'accepted')">Accept</button>
-          <button v-if="request.status === 'Pending'" @click="respondToRequest(request.id, 'rejected')">Reject</button>
-        </li>
-      </ul>
+  <div class="container my-4">
+    <h1 class="mb-4">Influencer Dashboard</h1>
+    <div class="row text-center mb-4">
+      <div class="col-md-3 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Pending Requests</h5>
+            <p class="card-text display-6">{{ stats.pending_requests }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Completed Requests</h5>
+            <p class="card-text display-6">{{ stats.completed_requests }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Ongoing Campaigns</h5>
+            <p class="card-text display-6">{{ stats.ongoing_campaigns }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Previous Campaigns</h5>
+            <p class="card-text display-6">{{ stats.previous_campaigns }}</p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div v-else>
-      <p>No ad requests found.</p>
+    <h2 class="mb-3">Ad Requests</h2>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th>Campaign</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Sponsor</th>
+            <th>Status</th>
+            <th>Message</th>
+            <th>Payment Amount</th>
+            <th>Made By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="request in stats.ad_requests" :key="request.ad_id">
+            <td>{{ request.cmpn_name }}</td>
+            <td>{{ request.start_date }}</td>
+            <td>{{ request.end_date }}</td>
+            <td>{{ request.sp_username }}</td>
+            <td class="text-center">{{ request.status }}</td>
+            <td>{{ request.message }}</td>
+            <td>{{ request.payment_amt }}</td>
+            <td>
+              <div v-if="request.made_by === 'sponsor'">
+                  <button @click="handleAdRequestAction(request.ad_id, 'accepted', 'Ad accepted')" class="btn btn-success">Accept</button>
+                  <button @click="handleAdRequestAction(request.ad_id, 'rejected', 'Ad rejected')" class="btn btn-danger">Reject</button>
+                  <button @click="handleAdRequestAction(request.ad_id, 'negotiated', 'Ad negotiation initiated')" class="btn btn-warning">Negotiate</button>
+                </div>
+              </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios'
 export default {
-  data () {
+  data() {
     return {
-      adRequests: []
-    }
+      stats: {},
+    };
   },
-  async created () {
-    this.fetchAdRequests()
+  created() {
+    fetch('/server/user/info')
+      .then((response) => response.json())
+      .then((data) => {
+        this.stats = data;
+      })
+      .catch((error) => console.error('Error fetching influencer data:', error));
   },
   methods: {
-    async fetchAdRequests () {
-      try {
-        const response = await axios.get('/server/ad_requests?status=all',{
-          headers: {'Content-Type': 'application/json'},
-          withCredentials: true })
-        this.adRequests = response.data.ads
-        console.log(response)
-      } catch (error) {
-        alert('Failed to fetch ad requests: ' + error.response.data.message)
+    handleAdRequestAction(ad_id, status, message) {
+        fetch('/server/ad_requests/action?ad_id=' + ad_id + '&status=' + status+ '&message=' + message, {
+          method: 'PUT',
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data.message);
+            this.fetchUserInfo();
+          })
+          .catch(error => console.error('Error:', error));
+      },
+      fetchUserInfo(){
+        fetch('/server/user/info')
+      .then((response) => response.json())
+      .then((data) => {
+        this.stats = data;
+      })
+      .catch((error) => console.error('Error fetching influencer data:', error));
       }
-    },
-    async respondToRequest (requestId, status) {
-      try {
-        await axios.post(`/server/influencer/ad_request/${requestId}/respond`, { status }, { withCredentials: true })
-        alert(`Ad request ${status}.`)
-        this.fetchAdRequests()
-      } catch (error) {
-        alert(`Failed to ${status} ad request: ` + error.response.data.message)
-      }
-    }
-  }
-}
+  },
+};
 </script>
-
-<style scoped>
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-}
-</style>

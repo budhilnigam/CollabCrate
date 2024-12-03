@@ -44,12 +44,12 @@
               <li><strong>Budget:</strong> ${{ campaign.budget }}</li>
               <li><strong>Goals:</strong> {{ campaign.goals }}</li>
             </ul>
-            <button v-if="isInfluencer && campaign.ad_id" class="btn btn-warning w-100" disabled>
-                {{campaign.status}}
+            <button v-if="isInfluencer && campaign.ad_id" :class="['btn', campaign.status === 'pending' ? 'btn-warning' : 'btn-success']" disabled>
+                {{campaign.status[0].toUpperCase()+campaign.status.slice(1).toLowerCase()}}
             </button>
             <AdRequestBox
             v-else-if="isInfluencer && !campaign.ad_id"
-            cmpnId="campaign.cmpn_id"
+            :cmpnId="campaign.cmpn_id"
             />
           </div>
         </div>

@@ -35,7 +35,17 @@ def get_campaigns_all():
         return jsonify(db.session.query(Campaign).all())
     elif current_user.get_id().split(':')[0] == 'influencer':
         print((dbqueryconverter(db.session.query(Campaign, AdRequest).outerjoin(AdRequest,(Campaign.cmpn_id == AdRequest.cmpn_id) and (AdRequest.inf_id == current_user.inf_id)).filter(or_(Campaign.visibility == 'public', Campaign.sp_username == current_user.username)).all())))
-        return jsonify(dbqueryconverter(db.session.query(Campaign.cmpn_id, AdRequest.ad_id, Campaign.cmpn_name, Campaign.cmpn_description, Campaign.budget, Campaign.visibility, Campaign.start_date, Campaign.end_date, Campaign.goals, Campaign.sp_username, AdRequest.message, AdRequest.payment_amt, AdRequest.made_by, AdRequest.status).outerjoin(AdRequest,(Campaign.cmpn_id == AdRequest.cmpn_id) and (AdRequest.inf_id == current_user.inf_id)).filter(or_(Campaign.visibility == 'public', Campaign.sp_username == current_user.username)).all()))
+        return jsonify(dbqueryconverter(db.session.query(
+    Campaign.cmpn_id, AdRequest.ad_id, Campaign.cmpn_name, Campaign.cmpn_description,
+    Campaign.budget, Campaign.visibility, Campaign.start_date, Campaign.end_date,
+    Campaign.goals, Campaign.sp_username, AdRequest.message, AdRequest.payment_amt,
+    AdRequest.made_by, AdRequest.status
+).outerjoin(
+    AdRequest, (Campaign.cmpn_id == AdRequest.cmpn_id) & (AdRequest.inf_id == current_user.inf_id)
+).filter(
+    or_(Campaign.visibility == 'public', Campaign.sp_username == current_user.username)
+).all()
+))
     elif current_user.get_id().split(':')[0] == 'sponsor':
         print((queryconverter(db.session.query(Campaign).filter(or_(Campaign.visibility=='public',Campaign.sp_username==current_user.username)).all())))
         return jsonify(queryconverter(db.session.query(Campaign).filter(or_(Campaign.visibility=='public',Campaign.sp_username==current_user.username)).all()))

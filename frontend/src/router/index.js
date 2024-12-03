@@ -9,6 +9,7 @@ import SponsorRegister from '../components/Sponsors/SponsorRegister.vue'
 import InfluencerRegister from '../components/Influencers/InfluencerRegister.vue'
 import HomeView from '@/views/HomeView.vue'
 import Campaigns from '@/views/Campaigns.vue'
+import Connect from '@/views/Connect.vue'
 
 const routes = [
   { path: '/', component: HomeView },
@@ -19,7 +20,8 @@ const routes = [
   { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, role: ['admin'] } },
   { path: '/sponsor', component: SponsorDashboard, meta: { requiresAuth: true, role: ['sponsor'] } },
   { path: '/influencer', component: InfluencerDashboard, meta: { requiresAuth: true, role: ['influencer'] } },
-  { path: '/campaigns', component: Campaigns, meta: { requiresAuth: true , role: ['influencer', 'sponsor']} }
+  { path: '/campaigns', component: Campaigns, meta: { requiresAuth: true , role: ['influencer', 'sponsor']} },
+  { path: '/connect', component: Connect, meta: { requiresAuth: true , role: ['influencer', 'sponsor']} },
 ]
 
 const router = createRouter({

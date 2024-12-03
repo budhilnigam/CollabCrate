@@ -56,7 +56,6 @@ export default {
     data() {
         return {
             adRequestData: {
-                cmpn_id: "",
                 inf_id: localStorage.getItem("userRole") === "influencer" ? JSON.parse(localStorage.getItem("user")).inf_id : null,
                 message: "",
                 payment_amt: "",

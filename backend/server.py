@@ -181,7 +181,7 @@ def get_user():
     print(singlequeryconverter(current_user))
     return jsonify(singlequeryconverter(current_user))
 
-import ads,campaigns,admin
+import ads,campaigns,admin,sponsor,influencer
 
 @celery.task
 def send_email_reminder(email, subject, body):
