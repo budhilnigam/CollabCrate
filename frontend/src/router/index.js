@@ -32,7 +32,7 @@ router.beforeEach((to, from, next) => {
   const loggedIn = localStorage.getItem('user')
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!loggedIn) {
-      next('/login')
+      next('/'+to.meta.role[0]+'/login')
     } else {
       let userRole;
       if(JSON.parse(loggedIn).sp_id){
@@ -44,7 +44,7 @@ router.beforeEach((to, from, next) => {
       }
       localStorage.setItem('userRole', userRole);
       if (!to.meta.role.includes(userRole)) {
-        next(to.meta.role[0]+'/login')
+        next('/'+to.meta.role[0]+'/login')
       } else {
         next()
       }
