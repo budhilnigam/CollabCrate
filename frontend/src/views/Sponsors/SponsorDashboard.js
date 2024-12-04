@@ -2,6 +2,7 @@
   import axios from 'axios';
   import SponsorCampaignForm from '@/components/Sponsors/SponsorCampaignForm';
   import EditCampaignForm from '@/components/Sponsors/EditCampaignForm';
+  import NegotiationBox from '@/components/NegotiationBox';
   export default {
     template: `
     <div class="px-2 m-2">
@@ -85,7 +86,7 @@
               <div v-if="request.made_by === 'influencer' && (request.status === 'pending' || request.status === 'negotiated')">
                 <button @click="handleAdRequestAction(request.ad_id, 'accepted', 'Ad accepted')" class="btn btn-success">Accept</button>
                 <button @click="handleAdRequestAction(request.ad_id, 'rejected', 'Ad rejected')" class="btn btn-danger">Reject</button>
-                <button @click="handleAdRequestAction(request.ad_id, 'negotiated', 'Ad negotiation initiated')" class="btn btn-warning">Negotiate</button>
+                <NegotiationBox :adId="request.ad_id"></NegotiationBox>
               </div>
               <div v-else>
                 {{ request.status[0].toUpperCase()+request.status.slice(1).toLowerCase() }}
@@ -178,6 +179,9 @@
       .catch((error) => console.error('Error fetching influencer data:', error));
       },
       handleAdRequestAction(ad_id, status, message) {
+        if (status === 'negotiated') {
+          message =prompt("Enter your message");
+        }
         fetch('/server/ad_requests/action?ad_id=' + ad_id + '&status=' + status+ '&message=' + message, {
           method: 'PUT',
         })
@@ -192,5 +196,6 @@
     components: {
       'CampaignForm': SponsorCampaignForm,
       'EditCampaignForm': EditCampaignForm,
+      'NegotiationBox':NegotiationBox
     },
   };

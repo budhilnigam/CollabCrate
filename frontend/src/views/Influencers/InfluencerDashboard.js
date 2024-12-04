@@ -1,3 +1,5 @@
+import NegotiationBox from "@/components/NegotiationBox";
+
 export default {
   template: `
   <div class="container my-4">
@@ -48,7 +50,7 @@ export default {
             <th>Status</th>
             <th>Message</th>
             <th>Payment Amount</th>
-            <th>Made By</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -57,16 +59,19 @@ export default {
             <td>{{ request.start_date }}</td>
             <td>{{ request.end_date }}</td>
             <td>{{ request.sp_username }}</td>
-            <td class="text-center">{{ request.status }}</td>
+            <td class="text-center">{{ request.status[0].toUpperCase()+request.status.slice(1).toLowerCase() }}</td>
             <td>{{ request.message }}</td>
             <td>{{ request.payment_amt }}</td>
             <td>
-              <div v-if="request.made_by === 'sponsor'">
+              <div v-if="request.made_by === 'sponsor' && (request.status === 'pending' || request.status === 'negotiated')">
                   <button @click="handleAdRequestAction(request.ad_id, 'accepted', 'Ad accepted')" class="btn btn-success">Accept</button>
                   <button @click="handleAdRequestAction(request.ad_id, 'rejected', 'Ad rejected')" class="btn btn-danger">Reject</button>
-                  <button @click="handleAdRequestAction(request.ad_id, 'negotiated', 'Ad negotiation initiated')" class="btn btn-warning">Negotiate</button>
-                </div>
-              </td>
+                  <NegotiationBox :adId="request.ad_id"></NegotiationBox>
+              </div>
+              <div v-else-if="request.status === 'accepted'">
+                <button @click="handleAdRequestAction(request.ad_id, 'completed', 'Ad completed')" class="btn btn-success">Mark as Completed</button>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -76,6 +81,9 @@ export default {
     return {
       stats: {},
     };
+  },
+  components: {
+    'NegotiationBox': NegotiationBox,
   },
   created() {
     fetch('/server/user/info')
