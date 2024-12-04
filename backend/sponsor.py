@@ -1,4 +1,4 @@
-from __main__ import app,db,login_manager,login_required,current_user,singlequeryconverter,queryconverter,dbqueryconverter
+from server import app,db,login_manager,login_required,current_user,singlequeryconverter,queryconverter,dbqueryconverter
 from models import Influencer, Campaign, AdRequest, sponsors, Admin
 from flask import jsonify,request
 from sqlalchemy import or_,and_,func

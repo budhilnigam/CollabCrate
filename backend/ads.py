@@ -1,5 +1,5 @@
 # ads.py
-from __main__ import app,db,login_manager,login_required,current_user,AdRequest,Campaign,sponsors,dbqueryconverter,singlequeryconverter,queryconverter
+from server import app,db,login_manager,login_required,current_user,AdRequest,Campaign,sponsors,dbqueryconverter,singlequeryconverter,queryconverter
 from flask import jsonify,request
 
 @app.route('/ad_requests', methods=['GET','POST'])
@@ -38,9 +38,29 @@ def ad_request_action():
     ad_id = request.args.get('ad_id')
     status = request.args.get('status')
     message = request.args.get('message')
+    payment_amt = request.args.get('payment_amt')
     ad_request = AdRequest.query.filter(AdRequest.ad_id==ad_id).first()
     ad_request.status = status
     ad_request.message = message
+    ad_request.payment_amt = payment_amt
     ad_request.made_by = current_user.get_id().split(':')[0]
     db.session.commit()
     return {"message":"Ad status changed to "+status}
+
+@app.route('/ad_requests/delete',methods=['GET'])
+@login_required
+def delete_ad_request():
+    ad_id = request.args.get('ad_id')
+    ad_request = AdRequest.query.filter(AdRequest.ad_id==ad_id).first()
+    if not ad_request:
+        return {"message":"Ad request not found"},404
+    
+    if current_user.get_id().split(':')[0] != ad_request.made_by:
+        return {"message":"You are not authorized to delete this ad request"},403
+    
+    if ad_request.status != 'pending':
+        return {"message":"You can only delete pending ad requests"},403
+    
+    db.session.delete(ad_request)
+    db.session.commit()
+    return {"message":"Ad request "+ad_id+"is deleted"}

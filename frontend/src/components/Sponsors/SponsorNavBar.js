@@ -30,13 +30,20 @@ export default {
     </nav>
     </div>`,
     methods: {
-        logout() {
-            const response=axios.get('/server/logout', { withCredentials: true })
-            if (response.data.message === 'Logged out') {
-                localStorage.removeItem('user')
-                localStorage.removeItem('userRole')
-                this.$router.push('/')
+        async logout() {
+            try {
+              const response = await axios.get('/server/logout', { withCredentials: true });
+              console.log(response);
+              // Clear local storage
+              localStorage.removeItem('user');
+              localStorage.removeItem('userRole');
+              // Redirect to home route
+              this.$router.push('/');
+            } catch (error) {
+              console.error('Error during logout:', error);
+              alert('Failed to logout. Please try again.');
             }
-        }
+          }
+          
     }
 }

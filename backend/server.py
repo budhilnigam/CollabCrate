@@ -49,7 +49,7 @@ class FlaskTask(Task):
                 return self.run(*args, **kwargs)
 def celery_init_app(app: Flask) -> Celery:
 
-    celery_app = Celery(app.name, task_cls=FlaskTask)
+    celery_app = Celery(app.import_name, task_cls=FlaskTask)
     celery_app.config_from_object(app.config["CELERY"])
     celery_app.set_default()
     app.extensions["celery"] = celery_app
@@ -114,10 +114,10 @@ def dbqueryconverter(query):
 def get():
     return jsonify({'msg': 'Hello World'})
 
-@app.route('/')
-def index():
-    send_email_reminder("budhilnigam@gmail.com", 'Daily Reminder', 'Please check your ad requests.')
-    return "Email sent successfully"
+#@app.route('/')
+#def index():
+#    send_email_reminder("budhilnigam@gmail.com", 'Daily Reminder', 'Please check your ad requests.')
+#    return "Email sent successfully"
 @app.route('/register', methods=['POST'])
 def register():
     username = request.form['username']
@@ -146,6 +146,14 @@ def register():
         db.session.commit()
         login_user(influencer)
         return {"message":True}
+    elif role == 'admin':
+        if Admin.query.filter_by(username=username).first():
+            return {"message":"Another user already exists with this username"}
+        admin = Admin(username=username,email=email, password=bcrypt.generate_password_hash(password))
+        db.session.add(admin)
+        db.session.commit()
+        login_user(admin)
+        return {"message":True}
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -168,11 +176,11 @@ def login():
             return {"message":False}
         
 
-@app.route('/logout', methods=['POST'])
+@app.route('/logout', methods=['GET'])
 @login_required
 def logout():
     logout_user()
-    return {"message":True}
+    return 200,{"message":True}
 
 
 @app.route('/get_user', methods=['GET'])
