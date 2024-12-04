@@ -1,4 +1,7 @@
-<template>
+import axios from "axios";
+import AdRequestBox from "@/components/AdRequestBox";
+export default {
+  template:`
   <div class="container py-4">
     <h1 class="mb-4">Campaigns</h1>
 
@@ -41,7 +44,7 @@
             <ul class="list-unstyled">
               <li><strong>Start Date:</strong> {{ campaign.start_date }}</li>
               <li><strong>End Date:</strong> {{ campaign.end_date }}</li>
-              <li><strong>Budget:</strong> ${{ campaign.budget }}</li>
+              <li><strong>Budget:</strong> \$ {{ campaign.budget }}</li>
               <li><strong>Goals:</strong> {{ campaign.goals }}</li>
             </ul>
             <button v-if="isInfluencer && campaign.ad_id" :class="['btn', campaign.status === 'pending' ? 'btn-warning' : 'btn-success']" disabled>
@@ -55,13 +58,7 @@
         </div>
       </div>
     </div>
-  </div>
-</template>
-
-<script>
-import axios from "axios";
-import AdRequestBox from "@/components/AdRequestBox.vue";
-export default {
+  </div>`,
   components: {
     'AdRequestBox': AdRequestBox,
   },
@@ -128,11 +125,3 @@ export default {
     // Set `isInfluencer` based on user role logic (e.g., fetched from API or user session)
   },
 };
-</script>
-
-<style scoped>
-.card {
-  border: 1px solid #ddd;
-  border-radius: 0.25rem;
-}
-</style>

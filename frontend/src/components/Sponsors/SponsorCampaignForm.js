@@ -1,10 +1,14 @@
-<template>
+
+  import axios from 'axios';
+  export default {
+    template: `
+    <div>
       <button
-        id="edit-campaign"
-        class="btn btn-primary me-2"
+        id="create-campaign"
+        class="btn btn-primary"
         @click="openModal"
       >
-        Edit
+        Create Campaign
       </button>
       <div
         class="modal fade"
@@ -13,12 +17,12 @@
         role="dialog"
         aria-labelledby="campaignModalLabel"
         aria-hidden="true"
-        ref="campaignModal"
+        ref="modal"
       >
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="campaignModalLabel">Edit Campaign</h5>
+              <h5 class="modal-title" id="campaignModalLabel">Create Campaign</h5>
               <button
                 type="button"
                 class="close"
@@ -30,7 +34,7 @@
               </button>
             </div>
             <div class="modal-body">
-              <form @submit.prevent="editCampaign">
+              <form @submit.prevent="createCampaign">
                 <div class="form-group">
                   <label for="cmpn_name">Campaign Name</label>
                   <input
@@ -70,6 +74,7 @@
                       role="switch"
                       v-model="isPublic"
                       @change="toggleVisibility"
+                      required
                     />
                     <label
                       class="form-check-label"
@@ -109,13 +114,13 @@
                     required
                   ></textarea>
                 </div>
-                <p :class="['text-center',message.toLowerCase().includes('error','fail') ? 'text-danger' : 'text-success']">{{ message }}</p>
+                <p class="text-danger text-center">{{ message }}</p>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-secondary" @click="closeModal">
                     Cancel
                   </button>
                   <button type="submit" class="btn btn-primary">
-                    Confirm
+                    Submit
                   </button>
                 </div>
               </form>
@@ -123,27 +128,7 @@
           </div>
         </div>
       </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  export default {
-    props: {
-        campaign: {
-            type: Object,
-            required: true,
-        },
-    },
-    mounted() {
-      this.formData.cmpn_name = this.campaign.cmpn_name;
-      this.formData.cmpn_description = this.campaign.cmpn_description;
-      this.formData.budget = this.campaign.budget;
-      this.formData.visibility = this.campaign.visibility;
-      this.formData.start_date = this.campaign.start_date;
-      this.formData.end_date = this.campaign.end_date;
-      this.formData.goals = this.campaign.goals;
-      this.isPublic = this.campaign.visibility === 'public';
-    },
+    </div>`,
     data() {
       return {
         isPublic: false,
@@ -151,7 +136,7 @@
           cmpn_name: '',
           cmpn_description: '',
           budget: '',
-          visibility: '',
+          visibility: 'private',
           start_date: '',
           end_date: '',
           goals: '',
@@ -161,29 +146,31 @@
     },
     methods: {
       openModal() {
-        const modal = new bootstrap.Modal(this.$refs.campaignModal);
+        const modal = new bootstrap.Modal(this.$refs.modal);
         modal.show();
       },
       closeModal() {
-        const modal = new bootstrap.Modal(this.$refs.campaignModal);
+        const modal = new bootstrap.Modal(this.$refs.modal);
         modal.hide();
         this.resetForm();
       },
       resetForm() {
-        this.formData.cmpn_name = this.campaign.cmpn_name;
-        this.formData.cmpn_description = this.campaign.cmpn_description;
-        this.formData.budget = this.campaign.budget;
-        this.formData.visibility = this.campaign.visibility;
-        this.formData.start_date = this.campaign.start_date;
-        this.formData.end_date = this.campaign.end_date;
-        this.formData.goals = this.campaign.goals;
+        this.formData = {
+          cmpn_name: '',
+          cmpn_description: '',
+          budget: '',
+          visibility: 'private',
+          start_date: '',
+          end_date: '',
+          goals: '',
+        };
       },
       toggleVisibility() {
         this.formData.visibility = this.isPublic ? 'public' : 'private';
       },
-      async editCampaign() {
+      async createCampaign() {
         try {
-          const response = await axios.put('/server/campaigns/edit?cmpn_id=' + this.campaign.cmpn_id,
+          const response = await axios.post('/server/campaigns/create',
           {
             cmpn_name: this.formData.cmpn_name,
             cmpn_description: this.formData.cmpn_description,
@@ -202,10 +189,8 @@
           console.log(response);
           const result = await response.data;
           if (response.status < 300) {
-            this.message = 'Campaign edited successfully!';
-            const t=setTimeout(() => {
-              this.closeModal();
-            }, 1000);
+            this.message = 'Campaign created successfully!';
+            this.closeModal();
           } else {
             this.message = result.message || 'An error occurred.';
           }
@@ -215,11 +200,3 @@
       },
     },
   };
-  </script>
-  
-  <style scoped>
-  .modal-body {
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-  </style>  

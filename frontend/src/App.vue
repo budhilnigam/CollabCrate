@@ -1,8 +1,8 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HomeNavBar from './components/HomeNavBar.vue';
-import SponsorNavBar from './components/Sponsors/SponsorNavBar.vue';
-import InfluencerNavBar from './components/Influencers/InfluencerNavBar.vue';
+import HomeNavBar from './components/HomeNavBar.js';
+import SponsorNavBar from './components/Sponsors/SponsorNavBar.js';
+import InfluencerNavBar from './components/Influencers/InfluencerNavBar.js';
 let userType='anonymous';
 if(localStorage.getItem('userRole')!==null){
     userType=localStorage.getItem('userRole');

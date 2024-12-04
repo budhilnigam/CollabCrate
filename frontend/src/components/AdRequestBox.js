@@ -1,4 +1,8 @@
-<template>
+
+import axios from 'axios';
+
+export default {
+    template: `
     <button
         class="btn btn-primary w-100"
         @click="openAdRequestModal"
@@ -43,13 +47,7 @@
         </form>
       </div>
     </div>
-</div>
-</template>
-
-<script>
-import axios from 'axios';
-
-export default {
+</div>`,
     props: {
         cmpnId: Number,
     },
@@ -101,4 +99,3 @@ export default {
         },
     }
 }
-</script>

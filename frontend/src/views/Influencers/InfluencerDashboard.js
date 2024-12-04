@@ -1,4 +1,5 @@
-<template>
+export default {
+  template: `
   <div class="container my-4">
     <h1 class="mb-4">Influencer Dashboard</h1>
     <div class="row text-center mb-4">
@@ -70,11 +71,7 @@
         </tbody>
       </table>
     </div>
-  </div>
-</template>
-
-<script>
-export default {
+  </div>`,
   data() {
     return {
       stats: {},
@@ -110,4 +107,3 @@ export default {
       }
   },
 };
-</script>

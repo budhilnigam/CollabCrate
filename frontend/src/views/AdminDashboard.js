@@ -1,4 +1,7 @@
-<template>
+import axios from 'axios';
+
+export default {
+  template: `
   <div>
     <h2>Admin Dashboard</h2>
     <div v-if="pendingUsers.length">
@@ -13,13 +16,7 @@
     <div v-else>
       <p>No pending approvals.</p>
     </div>
-  </div>
-</template>
-
-<script>
-import axios from 'axios';
-
-export default {
+  </div>`,
   data() {
     return {
       pendingUsers: [],
@@ -36,4 +33,3 @@ export default {
     },
   },
 };
-</script>

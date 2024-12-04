@@ -1,7 +1,7 @@
-<script>
-import { RouterLink } from "vue-router"
-</script>
-<template>
+import { RouterLink } from "vue-router";
+
+export default {
+    template: `
 <div id="home-navbar">
     <nav class="navbar navbar-dark navbar-expand-lg bg-primary">
     <div class="container-fluid" style="max-width: 100vw;">
@@ -24,5 +24,5 @@ import { RouterLink } from "vue-router"
         </div>
     </div>
     </nav>
-    </div>
-</template>
+    </div>`,
+};

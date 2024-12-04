@@ -1,4 +1,5 @@
-<template>
+export default {
+  template: `
   <div class="min-vh-100 d-flex flex-column bg-light">
     <main class="flex-grow-1 d-flex flex-column justify-content-center align-items-center text-center bg-white py-5">
       <h2 class="display-5 fw-bold mb-4">Connect Sponsors with Influencers Seamlessly</h2>
@@ -15,16 +16,6 @@
       <p class="mb-0">&copy; 2024 SponsorLink. All rights reserved.</p>
     </footer>
   </div>
-</template>
-
-<script>
-export default {
+`,
   name: "HomeView",
 };
-</script>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-}
-</style>

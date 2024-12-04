@@ -58,7 +58,7 @@ def get_statistics():
     })
 
 @app.route('/api/admin/campaigns', methods=['GET'])
-def get_campaigns():
+def get_admin_campaigns():
     campaigns = Campaign.query.all()
     return jsonify([{
         'cmpn_id': c.cmpn_id,
@@ -81,23 +81,3 @@ def get_users():
     ]
 
     return jsonify(users)
-
-@app.route('/api/admin/flag/campaign/<int:campaign_id>', methods=['POST'])
-def flag_campaign(campaign_id):
-    campaign = Campaign.query.get(campaign_id)
-    if not campaign:
-        return jsonify({'error': 'Campaign not found'}), 404
-
-    campaign.flagged = True
-    db.session.commit()
-    return jsonify({'message': 'Campaign flagged successfully'})
-
-@app.route('/api/admin/flag/user/<int:user_id>', methods=['POST'])
-def flag_user(user_id):
-    user = Influencer.query.get(user_id) or sponsors.query.get(user_id)
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-
-    user.flagged = True
-    db.session.commit()
-    return jsonify({'message': 'User flagged successfully'})

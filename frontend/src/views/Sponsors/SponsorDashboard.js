@@ -1,4 +1,9 @@
-<template>
+
+  import axios from 'axios';
+  import SponsorCampaignForm from '@/components/Sponsors/SponsorCampaignForm';
+  import EditCampaignForm from '@/components/Sponsors/EditCampaignForm';
+  export default {
+    template: `
     <div class="px-2 m-2">
       <h1>Sponsor Dashboard</h1>
       <div class="row text-center mb-4">
@@ -111,7 +116,7 @@
               <ul class="list-unstyled">
                 <li><strong>Start Date:</strong> {{ Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric',month: 'long', year: 'numeric' }).format(new Date(campaign.start_date)) }}</li>
                 <li><strong>End Date:</strong> {{ Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric',month: 'long', year: 'numeric' }).format(new Date(campaign.end_date)) }}</li>
-                <li><strong>Budget:</strong> ${{ campaign.budget }}</li>
+                <li><strong>Budget:</strong> \${{ campaign.budget }}</li>
                 <li><strong>Goals:</strong> {{ campaign.goals }}</li>
                 <li><strong>Status:</strong><p :class="['d-inline px-1 ms-1 rounded text-white',campaign.visibility === 'public' ? 'bg-success' : 'bg-warning']">{{ campaign.visibility[0].toUpperCase()+campaign.visibility.slice(1).toLowerCase() }}</p></li>
               </ul>
@@ -127,14 +132,7 @@
       <div v-else>
         <p>No campaigns found.</p>
       </div>
-    </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  import SponsorCampaignForm from '@/components/Sponsors/SponsorCampaignForm.vue';
-  import EditCampaignForm from '@/components/Sponsors/EditCampaignForm.vue';
-  export default {
+    </div>`,
     data() {
       return {
         campaigns: [],
@@ -196,11 +194,3 @@
       'EditCampaignForm': EditCampaignForm,
     },
   };
-</script>
-  <style scoped>
-  .campaign {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-  }
-  </style>
