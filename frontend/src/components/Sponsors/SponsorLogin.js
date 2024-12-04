@@ -2,32 +2,48 @@ import axios from 'axios'
 import { RouterLink } from 'vue-router';
 export default {
   template: `
-  <div class="login-container">
-    <h1>Sign In as a Sponsor</h1>
-    <form @submit.prevent="loginSponsor">
-      <div class="login-form">
-        <label for="username">Username:</label>
+  <div class="container py-5 d-flex justify-content-center">
+  <div class="w-100" style="max-width: 400px;">
+    <h1 class="text-center mb-4">Sign In as a Sponsor</h1>
+    <form @submit.prevent="loginSponsor" class="p-4 border rounded bg-light">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username:</label>
         <input
           type="text"
           id="username"
           v-model="username"
+          class="form-control"
           required
         />
       </div>
-      <div class="login-form">
-        <label for="password">Password:</label>
+      <div class="mb-3">
+        <label for="password" class="form-label">Password:</label>
         <input
           type="password"
           id="password"
           v-model="password"
+          class="form-control"
           required
         />
       </div>
-      <p v-if="message" class="warning" id="warning-message">{{ message }}</p>
-      <button type="submit">Login</button>
+      <p
+        v-if="message"
+        class="text-danger text-center mb-3"
+        id="warning-message"
+      >
+        {{ message }}
+      </p>
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </div>
     </form>
-    <p class="text-center pt-2">Don't have an account? <RouterLink to="/sponsor/register">Register</RouterLink></p>
-  </div>`,
+    <p class="text-center pt-3">
+      Don't have an account?
+      <RouterLink to="/sponsor/register" class="text-decoration-none">Register</RouterLink>
+    </p>
+  </div>
+</div>
+`,
   data () {
     return {
       username: '',

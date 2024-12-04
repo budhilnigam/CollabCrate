@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export default {
   template:`
-  <div class="container py-5">
+  <div class="container py-5" style="max-width: 500px;">
   <h1 class="text-center mb-4">Register as an Influencer</h1>
   <form @submit.prevent="registerInfluencer" class="p-4 border rounded bg-light">
     <div class="mb-3">
@@ -76,6 +76,10 @@ export default {
       <button type="submit" class="btn btn-primary">Register</button>
     </div>
   </form>
+  <p class="text-center pt-3">
+    Already have an account?
+    <RouterLink to="/influencer/login" class="text-decoration-none">Sign In</RouterLink>
+  </p>
 </div>
 `,
   data() {
