@@ -7,6 +7,9 @@
     template: `
     <div class="px-2 m-2">
       <h1>Sponsor Dashboard</h1>
+      <button @click="exportCampaigns" class="btn btn-primary">
+      Export Campaigns to CSV
+    </button>
       <div class="row text-center mb-4">
       <div class="col-md-3 mb-3">
         <div class="card shadow-sm">
@@ -192,6 +195,26 @@
           })
           .catch(error => console.error('Error:', error));
       },
+      async exportCampaigns() {
+        try {
+          // Make a POST request to the Flask backend to trigger CSV export
+          const response = await fetch('http://localhost:5000/export_campaigns', {
+            method: 'POST',
+            credentials: 'include', // Ensure cookies are included for session
+          });
+  
+          const data = await response.json();
+  
+          if (data.message === "Export started") {
+            alert("Export started successfully! You will receive the CSV in your email.");
+          } else {
+            alert("An error occurred while exporting.");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred while making the request.");
+        }
+      }
     },
     components: {
       'CampaignForm': SponsorCampaignForm,

@@ -200,10 +200,9 @@ def send_email_reminder(email, subject, body):
 
 @celery.task(name='daily_reminders')
 def daily_reminders():
-    send_email_reminder.delay("budhilnigam@gmail.com", 'Daily Reminder', 'Please check your ad requests.')
-    #influencers = db.session.query(Influencer).join(AdRequest, AdRequest.inf_id == Influencer.inf_id).filter(AdRequest.made_by == 'sponsor', AdRequest.status == 'Pending').all()
-    #for influencer in dbqueryconverter(influencers):
-    #    send_email_reminder.delay("budhilnigam@gmail.com", 'Daily Reminder', 'Please check your ad requests.')
+    #send_email_reminder.delay("budhilnigam@gmail.com", 'Daily Reminder', 'Please check your ad requests.')
+    for sponsor in db.session.query(sponsors.username,sponsors.email,Campaign.cmpn_name).join(Campaign, sponsors.username==Campaign.sp_username).join(AdRequest, Campaign.cmpn_id==AdRequest.cmpn_id).filter_by(status='pending').all():
+        send_email_reminder.delay(sponsor.email, 'Daily Reminder', 'You have got a new ad request for campaign '+sponsor.cmpn_name +'.')
 
 celery.conf.beat_schedule = {
     'daily-reminders': {
@@ -212,9 +211,36 @@ celery.conf.beat_schedule = {
     },
 }
 
-"""@celery.task
-def generate_report():"""
-    
+@app.route('/export_campaigns', methods=['POST'])
+@login_required
+def export_campaigns():
+    export_campaigns_to_csv.delay(current_user.username)
+    return {"message":"Export started"}
+
+@celery.task
+def export_campaigns_to_csv(sponsor_username):
+    from models import Campaign
+    import csv
+    import os
+
+    # Fetch campaigns for the sponsor
+    campaigns = Campaign.query.filter_by(sp_username=sponsor_username).all()
+
+    # File path for the CSV export
+    file_path = f"/tmp/{sponsor_username}_campaigns.csv"
+
+    # Create the CSV file and write campaign data
+    with open(file_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Campaign Name', 'Description', 'Start Date', 'End Date', 'Budget', 'Visibility', 'Goals'])
+        
+        for campaign in campaigns:
+            writer.writerow([campaign.cmpn_name, campaign.cmpn_description, campaign.start_date,
+                             campaign.end_date, campaign.budget, campaign.visibility, campaign.goals])
+
+    # After the export is done, send the CSV file to the sponsor's email
+    send_email_reminder.delay(sponsor_username, "Campaign Data Export", f"Your campaign data has been exported. You can download it from {file_path}.")
+
     
 if __name__ == '__main__':
     app.run(debug=True)
