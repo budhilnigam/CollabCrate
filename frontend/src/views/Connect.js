@@ -112,7 +112,7 @@ import axios from "axios";
     methods: {
       async fetchInfluencers() {
         try {
-          const response = await axios.get("/api/influencers");
+          const response = await axios.get("/server/api/influencers");
           this.influencers = response.data;
           this.filteredInfluencers = this.influencers; // Default view shows all influencers
         } catch (error) {
