@@ -21,18 +21,21 @@ export default {
             <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"></input>
             <button class="btn btn-outline-success" type="submit">Search</button>
         </form>
-        <a class="nav-link" @click="logout">Logout</a>
+        <a class="nav-link text-white" href="#" @click="logout">Logout</a>
         </div>
     </div>
     </nav>
     </div>`,
     methods: {
-        logout() {
-            const response=axios.get('/server/logout', { withCredentials: true })
-            if (response.data.message === 'Logged out') {
+        async logout() {
+            try{
+                const response=axios.get('/server/logout', { withCredentials: true });
                 localStorage.removeItem('user')
                 localStorage.removeItem('userRole')
                 this.$router.push('/')
+            } catch(error){
+                console.error('Error during logout:', error);
+                alert('Failed to logout. Please try again.');
             }
         }
     }
