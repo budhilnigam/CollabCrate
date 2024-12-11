@@ -189,8 +189,6 @@ def get_user():
     print(singlequeryconverter(current_user))
     return jsonify(singlequeryconverter(current_user))
 
-import ads,campaigns,admin,sponsor,influencer
-
 @celery.task
 def send_email_reminder(email, subject, body):
     msg = Message(subject,sender=os.getenv("MAIL_USERNAME"),recipients=[email])
@@ -241,6 +239,10 @@ def export_campaigns_to_csv(sponsor_username):
     # After the export is done, send the CSV file to the sponsor's email
     send_email_reminder.delay(sponsor_username, "Campaign Data Export", f"Your campaign data has been exported. You can download it from {file_path}.")
 
+
+def register_routes():
+    import ads,campaigns,admin,sponsor,influencer
     
 if __name__ == '__main__':
+    register_routes()
     app.run(debug=True)

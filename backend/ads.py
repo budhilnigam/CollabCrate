@@ -1,5 +1,5 @@
 # ads.py
-from server import app,db,login_manager,login_required,current_user,AdRequest,Campaign,sponsors,dbqueryconverter,singlequeryconverter,queryconverter
+from __main__ import app,db,login_manager,login_required,current_user,AdRequest,Campaign,sponsors,dbqueryconverter,singlequeryconverter,queryconverter
 from flask import jsonify,request
 
 @app.route('/ad_requests', methods=['GET','POST'])

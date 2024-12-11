@@ -1,5 +1,5 @@
 # campaigns.py
-from server import app,db,login_required,current_user,dbqueryconverter,singlequeryconverter,queryconverter
+from __main__ import app,db,login_required,current_user,dbqueryconverter,singlequeryconverter,queryconverter
 from flask import jsonify,request
 from models import Campaign,AdRequest,sponsors
 from sqlalchemy import or_,and_

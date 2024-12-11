@@ -1,5 +1,5 @@
 # admin.py
-from server import app,db,login_manager,login_required,current_user,Influencer,sponsors,Campaign
+from __main__ import app,db,login_manager,login_required,current_user,Influencer,sponsors,Campaign
 from flask import request,jsonify
 
 @app.route('/approve_registration', methods=['POST'])
