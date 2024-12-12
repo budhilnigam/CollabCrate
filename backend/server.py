@@ -122,7 +122,6 @@ def get():
 def register():
     username = request.form['username']
     password = request.form['password']
-    email=request.form['email']
     role = request.args.get('role')
 
     if role == 'sponsor':
@@ -130,6 +129,7 @@ def register():
             return {"message":"Another user already exists with this username"}
         sp_industry=request.form['sp_industry']
         sp_budget=request.form['sp_budget']
+        email = request.form['email']
         sponsor = sponsors(username=username,email=email, password=bcrypt.generate_password_hash(password),sp_industry=sp_industry,sp_budget=sp_budget)
         db.session.add(sponsor)
         db.session.commit()
@@ -141,6 +141,7 @@ def register():
         inf_category=request.form['inf_category']
         inf_niche=request.form['inf_niche']
         inf_reach=request.form['inf_reach']
+        email = request.form['email']
         influencer = Influencer(username=username,email=email, password=bcrypt.generate_password_hash(password),inf_category=inf_category,inf_niche=inf_niche,inf_reach=inf_reach)
         db.session.add(influencer)
         db.session.commit()
@@ -149,7 +150,7 @@ def register():
     elif role == 'admin':
         if Admin.query.filter_by(username=username).first():
             return {"message":"Another user already exists with this username"}
-        admin = Admin(username=username,email=email, password=bcrypt.generate_password_hash(password))
+        admin = Admin(username=username,password=bcrypt.generate_password_hash(password))
         db.session.add(admin)
         db.session.commit()
         login_user(admin)
