@@ -9,8 +9,10 @@ from flask_caching import Cache
 from models import *
 from celery import Celery,Task
 from celery.schedules import crontab
+from datetime import datetime
 import os
 import redis
+from io import StringIO
 from dotenv import load_dotenv
 celery=None
 load_dotenv()
@@ -37,7 +39,7 @@ app.config.from_mapping(
         task_ignore_result=True,
     ),
 )
-
+app.config.enable_utc = False
 #app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/1'
 #app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/1'
 #app.config['CACHE_TYPE'] = 'redis'
@@ -203,10 +205,92 @@ def daily_reminders():
     for sponsor in db.session.query(sponsors.username,sponsors.email,Campaign.cmpn_name).join(Campaign, sponsors.username==Campaign.sp_username).join(AdRequest, Campaign.cmpn_id==AdRequest.cmpn_id).filter_by(status='pending').all():
         send_email_reminder.delay(sponsor.email, 'Daily Reminder', 'You have got a new ad request for campaign '+sponsor.cmpn_name +'.')
 
+@celery.task(name='send_monthly_report')
+def send_monthly_report():
+    # Get the current month and year for the report header
+    current_month = datetime.now().strftime('%B %Y')
+
+    # Fetch all the sponsors
+    sponsors_list = sponsors.query.all()
+
+    # Loop through each sponsor to create a specific report for them
+    for sponsor in sponsors_list:
+        # Fetch campaigns for the sponsor
+        campaigns = Campaign.query.filter_by(sp_username=sponsor.username).all()
+
+        # Create a summary of activities for the report
+        report_data = []
+        
+        for campaign in campaigns:
+            # Calculate the number of ads and total payment for each campaign
+            ad_requests = AdRequest.query.filter_by(cmpn_id=campaign.cmpn_id).all()
+            ads_done = len(ad_requests)
+            total_payment = sum([ad_request.payment_amt for ad_request in ad_requests])
+
+            sales_growth = 10
+
+            budget_used = total_payment
+            budget_remaining = campaign.budget - budget_used
+
+            report_data.append({
+                'campaign_name': campaign.cmpn_name,
+                'ads_done': ads_done,
+                'total_payment': total_payment,
+                'sales_growth': sales_growth,
+                'budget_used': budget_used,
+                'budget_remaining': budget_remaining
+            })
+
+        # Generate the HTML content for the sponsor's email
+        html_content = f"""
+        <h1>Monthly Activity Report - {current_month}</h1>
+        <h2>Campaigns for {sponsor.username}</h2>
+        <table border="1" cellpadding="10">
+            <tr>
+                <th>Campaign Name</th>
+                <th>Ads Done</th>
+                <th>Total Payment</th>
+                <th>Sales Growth (%)</th>
+                <th>Budget Used</th>
+                <th>Budget Remaining</th>
+            </tr>
+        """
+        
+        for data in report_data:
+            html_content += f"""
+            <tr>
+                <td>{data['campaign_name']}</td>
+                <td>{data['ads_done']}</td>
+                <td>${data['total_payment']}</td>
+                <td>{data['sales_growth']}%</td>
+                <td>${data['budget_used']}</td>
+                <td>${data['budget_remaining']}</td>
+            </tr>
+            """
+        
+        html_content += "</table>"
+
+        msg = Message(
+            subject=f"Monthly Activity Report - {current_month}",
+            sender=os.getenv("MAIL_USERNAME"),
+            recipients=[sponsor.email],
+            body="Please find your monthly activity report below.",
+            html=html_content
+        )
+
+        mail.send(msg)
+
+    return "Monthly reports sent successfully"
+
+
 celery.conf.beat_schedule = {
     'daily-reminders': {
         'task': 'daily_reminders',
-        'schedule': crontab(hour=10, minute=23),  # Send at 5 PM every day
+        'schedule': crontab(hour=20, minute=13),
+    },
+    'send-monthly-report': {
+        'task': 'send_monthly_report',
+        'schedule': crontab(hour=20, minute=14),
     },
 }
 
@@ -222,23 +306,45 @@ def export_campaigns_to_csv(sponsor_username):
     import csv
     import os
 
+    # Get the sponsor's data
+    sponsor = sponsors.query.filter_by(username=sponsor_username).first()
+
     # Fetch campaigns for the sponsor
     campaigns = Campaign.query.filter_by(sp_username=sponsor_username).all()
 
-    # File path for the CSV export
-    file_path = f"/tmp/{sponsor_username}_campaigns.csv"
+    # Create a CSV in memory using StringIO
+    csv_file = StringIO()
+    writer = csv.writer(csv_file)
+    
+    # Write the header
+    writer.writerow(['Campaign Name', 'Description', 'Start Date', 'End Date', 'Budget', 'Visibility', 'Goals'])
+    
+    # Write campaign data
+    for campaign in campaigns:
+        writer.writerow([campaign.cmpn_name, campaign.cmpn_description, campaign.start_date,
+                         campaign.end_date, campaign.budget, campaign.visibility, campaign.goals])
+    
+    # Reset the pointer to the beginning of the file for reading
+    csv_file.seek(0)
 
-    # Create the CSV file and write campaign data
-    with open(file_path, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Campaign Name', 'Description', 'Start Date', 'End Date', 'Budget', 'Visibility', 'Goals'])
-        
-        for campaign in campaigns:
-            writer.writerow([campaign.cmpn_name, campaign.cmpn_description, campaign.start_date,
-                             campaign.end_date, campaign.budget, campaign.visibility, campaign.goals])
+    # Create the email message
+    msg = Message(
+        subject="Campaign Data Export",
+        sender=os.getenv("MAIL_USERNAME"),  # Your sender email address
+        recipients=[sponsor.email],
+        body="Your campaign data has been exported. Please find the CSV file attached."
+    )
 
-    # After the export is done, send the CSV file to the sponsor's email
-    send_email_reminder.delay(sponsor_username, "Campaign Data Export", f"Your campaign data has been exported. You can download it from {file_path}.")
+    # Attach the CSV file to the email
+    msg.attach(
+        f"{sponsor_username}_campaigns.csv",  # Filename for attachment
+        "text/csv",  # MIME type for CSV files
+        csv_file.getvalue()  # File contents
+    )
+
+    mail.send(msg)
+
+    return "Exported successfully"
 
 
 def register_routes():
