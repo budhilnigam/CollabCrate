@@ -1,56 +1,71 @@
 import axios from "axios";
-
 export default {
-  template:`
-  <div class="container my-5">
-    <h1 class="text-center mb-4">Admin Dashboard</h1>
-    
-    <div class="row text-center mb-5">
-      <div class="col-md-3">
-        <div class="card bg-primary text-white">
+  template: `
+  <div class="container mt-5">
+    <div class="row mb-4">
+      <div class="col-md-3" v-for="(value, key) in stats" :key="key">
+        <div class="card text-center">
           <div class="card-body">
-            <h4>Total Campaigns</h4>
-            <p class="display-6">{{ statistics.totalCampaigns }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card bg-success text-white">
-          <div class="card-body">
-            <h4>Total Users</h4>
-            <p class="display-6">{{ statistics.totalUsers }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card bg-warning text-dark">
-          <div class="card-body">
-            <h4>Flagged Campaigns</h4>
-            <p class="display-6">{{ statistics.flaggedCampaigns }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card bg-danger text-white">
-          <div class="card-body">
-            <h4>Flagged Users</h4>
-            <p class="display-6">{{ statistics.flaggedUsers }}</p>
+            <h5 class="card-title">{{ key }}</h5>
+            <p class="card-text">{{ value }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Campaigns Section -->
-    <div class="mb-5">
-      <h2 class="mb-3">Campaigns</h2>
-      <table class="table table-striped table-bordered">
-        <thead class="table-dark">
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: activeTab === 'users' }" href="#" @click="activeTab = 'users'">Users</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: activeTab === 'campaigns' }" href="#" @click="activeTab = 'campaigns'">Campaigns</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" :class="{ active: activeTab === 'adRequests' }" href="#" @click="activeTab = 'adRequests'">Ad Requests</a>
+      </li>
+    </ul>
+
+    <div v-if="activeTab === 'users'">
+      <h4>Users</h4>
+      <div v-for="(list, userType) in users" :key="userType">
+        <h5 class="mt-3 text-capitalize">{{ userType }}</h5>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="user in list" :key="user.id">
+              <td>{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.flagged ? 'Flagged' : 'Active' }}</td>
+              <td>
+                <button class="btn btn-sm" :class="user.flagged ? 'btn-danger' : 'btn-success'" @click="toggleFlag('users', userType, user)">
+                  {{ user.flagged ? 'Unflag' : 'Flag' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div v-else-if="activeTab === 'campaigns'">
+      <h4>Campaigns</h4>
+      <table class="table table-bordered">
+        <thead>
           <tr>
             <th>ID</th>
-            <th>Name</th>
+            <th>Title</th>
             <th>Description</th>
             <th>Status</th>
-            <th>Action</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -58,21 +73,10 @@ export default {
             <td>{{ campaign.cmpn_id }}</td>
             <td>{{ campaign.cmpn_name }}</td>
             <td>{{ campaign.cmpn_description }}</td>
+            <td>{{ campaign.flagged ? 'Flagged' : 'Active' }}</td>
             <td>
-              <span
-                class="badge"
-                :class="campaign.flagged ? 'bg-danger' : 'bg-success'"
-              >
-                {{ campaign.flagged ? "Flagged" : "Active" }}
-              </span>
-            </td>
-            <td>
-              <button
-                class="btn btn-warning btn-sm"
-                @click="flagCampaign(campaign.cmpn_id)"
-                :disabled="campaign.flagged"
-              >
-                Flag
+              <button class="btn btn-sm" :class="campaign.flagged ? 'btn-danger' : 'btn-success'" @click="toggleFlag('campaigns', null, campaign)">
+                {{ campaign.flagged ? 'Unflag' : 'Flag' }}
               </button>
             </td>
           </tr>
@@ -80,41 +84,25 @@ export default {
       </table>
     </div>
 
-    <!-- Users Section -->
-    <div>
-      <h2 class="mb-3">Users</h2>
-      <table class="table table-striped table-bordered">
-        <thead class="table-dark">
+    <div v-else-if="activeTab === 'adRequests'">
+      <h4>Ad Requests</h4>
+      <table class="table table-bordered">
+        <thead>
           <tr>
             <th>ID</th>
-            <th>Username</th>
-            <th>Type</th>
+            <th>Message</th>
+            <th>Payment Amount</th>
+            <th>Made By</th>
             <th>Status</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users" :key="user.id">
-            <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.type }}</td>
-            <td>
-              <span
-                class="badge"
-                :class="user.flagged ? 'bg-danger' : 'bg-success'"
-              >
-                {{ user.flagged ? "Flagged" : "Active" }}
-              </span>
-            </td>
-            <td>
-              <button
-                class="btn btn-warning btn-sm"
-                @click="flagUser(user.id)"
-                :disabled="user.flagged"
-              >
-                Flag
-              </button>
-            </td>
+          <tr v-for="request in adRequests" :key="request.ad_id">
+            <td>{{ request.ad_id }}</td>
+            <td>{{ request.message }}</td>
+            <td>{{ request.payment_amt }}</td>
+            <td>{{ request.made_by }}</td>
+            <td>{{ request.status }}</td>
           </tr>
         </tbody>
       </table>
@@ -122,46 +110,52 @@ export default {
   </div>`,
   data() {
     return {
-      statistics: {
-        totalCampaigns: 0,
-        totalUsers: 0,
-        flaggedCampaigns: 0,
-        flaggedUsers: 0,
-      },
+      stats: {},
+      activeTab: "users",
+      users: {},
       campaigns: [],
-      users: [],
+      adRequests: []
     };
   },
+  created() {
+    this.fetchData();
+  },
   methods: {
-    fetchStatistics() {
-      axios.get("/api/admin/statistics").then((response) => {
-        this.statistics = response.data;
-      });
+    async fetchData() {
+      try {
+        const [usersResponse, campaignsResponse, adRequestsResponse] = await Promise.all([
+          axios.get("/server/admin/users"),
+          axios.get("/server/admin/campaigns"),
+          axios.get("/server/admin/ad_requests")
+        ]);
+
+        this.users = usersResponse.data;
+        this.campaigns = campaignsResponse.data;
+        this.adRequests = adRequestsResponse.data;
+
+        this.stats = {
+          "Total Influencers": this.users.influencers.length,
+          "Total Sponsors": this.users.sponsors.length,
+          "Total Campaigns": this.campaigns.length,
+          "Active Campaigns": this.campaigns.filter(c => !c.flagged).length
+        };
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     },
-    fetchCampaigns() {
-      axios.get("/api/admin/campaigns").then((response) => {
-        this.campaigns = response.data;
-      });
-    },
-    fetchUsers() {
-      axios.get("/api/admin/users").then((response) => {
-        this.users = response.data;
-      });
-    },
-    flagCampaign(campaignId) {
-      axios.post(`/api/admin/flag/campaign/${campaignId}`).then(() => {
-        this.fetchCampaigns();
-      });
-    },
-    flagUser(userId) {
-      axios.post(`/api/admin/flag/user/${userId}`).then(() => {
-        this.fetchUsers();
-      });
-    },
-  },
-  mounted() {
-    this.fetchStatistics();
-    this.fetchCampaigns();
-    this.fetchUsers();
-  },
+    async toggleFlag(type, userType, item) {
+      try {
+        const flagEndpoint = type === "users" ? `/server/users/flag` : `/server/campaigns/flag`;
+        const params = type === "users"
+          ? { user: `${userType}:${item.id}`, flag: item.flagged ? 0 : 1 }
+          : { cmpn_id: item.cmpn_id, flag: item.flagged ? 0 : 1 };
+
+        await axios.put(flagEndpoint, null, { params });
+
+        item.flagged = !item.flagged;
+      } catch (error) {
+        console.error("Error toggling flag:", error);
+      }
+    }
+  }
 };

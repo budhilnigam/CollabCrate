@@ -1,5 +1,5 @@
 # admin.py
-from __main__ import app,db,login_manager,login_required,current_user,Influencer,sponsors,Campaign
+from __main__ import app,db,login_manager,login_required,current_user,Influencer,sponsors,Campaign,AdRequest,dbqueryconverter,queryconverter
 from flask import request,jsonify
 
 @app.route('/approve_registration', methods=['POST'])
@@ -18,15 +18,19 @@ def approve_registration():
         db.session.commit()
         return jsonify({"message": "User approved"}), 200
     return jsonify({"message": "User not found"}), 404
-@app.route('/admin/flag', methods=['PUT'])
+
+@app.route('/users/flag', methods=['PUT'])
 @login_required
 def flag_user():
-    user_type,user_id=request.args.get('user').split(':')
+    user_type=request.args.get('user_type')
+    user_id=request.args.get('user_id')
+    flag=request.args.get('flag')
+    print(user_type,user_id,flag)
     if user_type=='influencer':
         user = Influencer.query.filter_by(inf_id=user_id).first()
     elif user_type=='sponsor':
         user = sponsors.query.filter_by(sponsor_id=user_id).first()
-    user.flagged = request.args.get('flag')
+    user.flagged = int(flag)
     db.session.commit()
     return {"message":"User "+user_id+"is "+("" if user.flagged else "un")+"flagged"}
 
@@ -36,48 +40,21 @@ def flag_campaign():
     cmpn_id = request.args.get('cmpn_id')
     flag = request.args.get('flag')
     campaign = db.session.query(Campaign).filter(Campaign.cmpn_id==cmpn_id).first()
-    campaign.flagged = flag
+    campaign.flagged = int(flag)
     db.session.commit()
     return {"message":"Campaign "+cmpn_id+"is "+("" if flag else "un")+"flagged"}
 
+@app.route('/admin/campaigns', methods=['GET'])
+@login_required
+def admin_campaigns():
+    return jsonify(queryconverter(Campaign.query.all()))
 
+@app.route('/admin/users', methods=['GET'])
+@login_required
+def admin_users():
+    return jsonify({"influencers":queryconverter(Influencer.query.all()),"sponsors":queryconverter(sponsors.query.all())})
 
-@app.route('/api/admin/statistics', methods=['GET'])
-def get_statistics():
-    total_campaigns = Campaign.query.count()
-    total_users = Influencer.query.count() + sponsors.query.count()
-    flagged_campaigns = Campaign.query.filter_by(flagged=True).count()
-    flagged_users = (Influencer.query.filter_by(flagged=True).count() +
-                     sponsors.query.filter_by(flagged=True).count())
-
-    return jsonify({
-        'totalCampaigns': total_campaigns,
-        'totalUsers': total_users,
-        'flaggedCampaigns': flagged_campaigns,
-        'flaggedUsers': flagged_users
-    })
-
-@app.route('/api/admin/campaigns', methods=['GET'])
-def get_admin_campaigns():
-    campaigns = Campaign.query.all()
-    return jsonify([{
-        'cmpn_id': c.cmpn_id,
-        'cmpn_name': c.cmpn_name,
-        'cmpn_description': c.cmpn_description,
-        'flagged': c.flagged
-    } for c in campaigns])
-
-@app.route('/api/admin/users', methods=['GET'])
-def get_users():
-    influencers = Influencer.query.all()
-    sponsors_data = sponsors.query.all()
-
-    users = [
-        {'id': u.inf_id, 'username': u.username, 'type': 'Influencer', 'flagged': u.flagged}
-        for u in influencers
-    ] + [
-        {'id': u.sp_id, 'username': u.username, 'type': 'Sponsor', 'flagged': u.flagged}
-        for u in sponsors_data
-    ]
-
-    return jsonify(users)
+@app.route('/admin/ad_requests', methods=['GET'])
+@login_required
+def admin_ad_requests():
+    return jsonify(queryconverter(AdRequest.query.all()))

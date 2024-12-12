@@ -5,6 +5,7 @@ import SponsorDashboard from '../views/Sponsors/SponsorDashboard'
 import InfluencerDashboard from '../views/Influencers/InfluencerDashboard'
 import SponsorLogin from '../components/Sponsors/SponsorLogin'
 import InfluencerLogin from '../components/Influencers/InfluencerLogin'
+import AdminLogin from '@/components/AdminLogin'
 import SponsorRegister from '../components/Sponsors/SponsorRegister'
 import InfluencerRegister from '../components/Influencers/InfluencerRegister'
 import HomeView from '@/views/HomeView'
@@ -17,6 +18,7 @@ const routes = [
   { path: '/influencer/login', component: InfluencerLogin },
   { path: '/sponsor/register', component: SponsorRegister },
   { path: '/influencer/register', component: InfluencerRegister },
+  { path: '/admin/login', component: AdminLogin },
   { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, role: ['admin'] } },
   { path: '/sponsor', component: SponsorDashboard, meta: { requiresAuth: true, role: ['sponsor'] } },
   { path: '/influencer', component: InfluencerDashboard, meta: { requiresAuth: true, role: ['influencer'] } },

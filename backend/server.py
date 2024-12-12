@@ -181,7 +181,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return 200,{"message":True}
+    return {"message":True}
 
 
 @app.route('/get_user', methods=['GET'])
@@ -216,7 +216,7 @@ def export_campaigns():
     export_campaigns_to_csv.delay(current_user.username)
     return {"message":"Export started"}
 
-@celery.task
+@celery.task(name='export_campaigns_to_csv')
 def export_campaigns_to_csv(sponsor_username):
     from models import Campaign
     import csv
